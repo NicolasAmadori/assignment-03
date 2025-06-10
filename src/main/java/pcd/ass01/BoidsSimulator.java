@@ -60,16 +60,16 @@ public class BoidsSimulator {
         var boids = model.getBoids();
         var barrierVel = new CyclicBarrierImpl(boids.size());
         var barrierSync = new CyclicBarrierImpl(boids.size() + 1);
-
-        var threads = boids.stream().map(b -> Thread.ofVirtual().start(() -> {
-            while(true) {
-                barrierSync.hitAndWaitAll();
-                b.updateVelocity(model);
-                barrierVel.hitAndWaitAll();
-                b.updatePos(model);
-                barrierSync.hitAndWaitAll();
-            }
-        })).toList();
+//
+//        var threads = boids.stream().map(b -> Thread.ofVirtual().start(() -> {
+//            while(true) {
+//                barrierSync.hitAndWaitAll();
+//                b.updateVelocity(model);
+//                barrierVel.hitAndWaitAll();
+//                b.updatePos(model);
+//                barrierSync.hitAndWaitAll();
+//            }
+//        })).toList();
 
         while (startStopmonitor.get()) {
             pauseResumeMonitor.waitForCondition(true);
@@ -98,6 +98,6 @@ public class BoidsSimulator {
             }
 
         }
-        threads.forEach(Thread::interrupt);
+//        threads.forEach(Thread::interrupt);
     }
 }
