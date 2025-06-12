@@ -2,12 +2,15 @@ package pcd.ass01;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.List;
 
-public class BoidsPanel extends JPanel {
+
+public class BoidsPanel extends JPanel{
 
 	private BoidsView view; 
 	private BoidsModel model;
     private int framerate;
+    private List<Boid> boids;
 
     public BoidsPanel(BoidsView view, BoidsModel model) {
     	this.model = model;
@@ -17,18 +20,22 @@ public class BoidsPanel extends JPanel {
     public void setFrameRate(int framerate) {
     	this.framerate = framerate;
     }
-    
+
+    public void setBoids(List<Boid> boids) {
+        this.boids = boids;
+    }
+
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         setBackground(Color.WHITE);
-        
+        if (boids == null) {
+            return;
+        }
         var w = view.getWidth();
         var h = view.getHeight();
         var envWidth = model.getWidth();
         var xScale = w/envWidth;
-
-        var boids = model.getBoids();
 
         g.setColor(Color.BLUE);
         for (Boid boid : boids) {

@@ -78,16 +78,8 @@ public class PingPongerJava extends AbstractBehavior<PingPongerJava.PingPongJava
         return Behaviors.setup(context -> new PingPongerJava(context, bounces));
     }
 
-//    public static void main(String[] args) {
-//        ActorRef<PingPongJava> pingPonger = ActorSystem.create(PingPongerJava.create(10), "pingPonger");
-//        pingPonger.tell(new PingPongJava.Ping(pingPonger.unsafeUpcast()));
-//
-//        System.out.println("Premi ENTER per terminare...");
-//        try {
-//            System.in.read();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-
-//    }
+    public static void main(String[] args) {
+        ActorRef<PingPongJava> pingPonger = ActorSystem.create(PingPongerJava.create(10), "pingPonger");
+        pingPonger.tell(new PingPongJava.Ping(pingPonger.unsafeUpcast()));
+    }
 }

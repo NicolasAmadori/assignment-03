@@ -1,12 +1,19 @@
 package pcd.ass01;
+import akka.actor.AbstractActor;
+import akka.actor.ActorRef;
+
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Optional;
+
+import static pcd.ass01.SimulatorExchangeProtocol.*;
 
 public class BoidsView implements ChangeListener, ActionListener {
 	private final String START = "Start";
@@ -21,9 +28,9 @@ public class BoidsView implements ChangeListener, ActionListener {
 	private final JTextField boidsCountField;
 	private final BoidsModel model;
 	private final int width, height;
-	private final BoidsSimulator simulator;
+	private final ActorRef simulator;
 
-	public BoidsView(BoidsModel model, BoidsSimulator simulator, int width, int height) {
+	public BoidsView(BoidsModel model, ActorRef simulator, int width, int height) {
 		this.model = model;
 		this.width = width;
 		this.height = height;
@@ -94,7 +101,8 @@ public class BoidsView implements ChangeListener, ActionListener {
 		return slider;
 	}
 
-	public void update(int frameRate) {
+	public void update(int frameRate, List<Boid> boids) {
+		boidsPanel.setBoids(boids);
 		boidsPanel.setFrameRate(frameRate);
 		boidsPanel.repaint();
 	}
@@ -119,13 +127,14 @@ public class BoidsView implements ChangeListener, ActionListener {
 			if (startStopButton.getText() == START) {
 				boidsCountField.setEnabled(false);
 				getNumBoids().ifPresent(val -> {
-					simulator.startSimulator(val);
+					System.out.println("Boids count: " + val);
+					simulator.tell(new StartSimulationMsg(val), ActorRef.noSender());
 					startStopButton.setText(STOP);
 					pauseResumeButton.setEnabled(true);
 				});
 			} else {
 				boidsCountField.setEnabled(true);
-				simulator.stopSimulator();
+				simulator.tell(new StopSimulationMsg(), ActorRef.noSender());
 				startStopButton.setText(START);
 				pauseResumeButton.setText(PAUSE);
 				pauseResumeButton.setEnabled(false);
@@ -133,10 +142,10 @@ public class BoidsView implements ChangeListener, ActionListener {
 		}
 		if (e.getSource() == pauseResumeButton) {
 			if (pauseResumeButton.getText() == PAUSE) {
-				simulator.pauseSimulator();
+				simulator.tell(new PauseSimulationMsg(), ActorRef.noSender());
 				pauseResumeButton.setText(RESUME);
 			} else {
-				simulator.resumeSimulator();
+				simulator.tell(new ResumeSimulationMsg(), ActorRef.noSender());
 				pauseResumeButton.setText(PAUSE);
 			}
 		}

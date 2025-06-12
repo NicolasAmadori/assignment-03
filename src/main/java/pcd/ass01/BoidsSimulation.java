@@ -1,12 +1,11 @@
 package pcd.ass01;
 
+import java.util.ArrayList;
+import akka.actor.*;
 
-import akka.actor.typed.javadsl.Behaviors;
 import pcd.ass01.actors.BoidActor;
-
-import akka.actor.typed.ActorRef;
-import akka.actor.typed.ActorSystem;
-import pcd.ass01.actors.PingPongerJava;
+import static pcd.ass01.actors.BoidExchangeProtocol.*;
+import static pcd.ass01.SimulatorExchangeProtocol.*;
 
 public class BoidsSimulation {
 
@@ -24,38 +23,20 @@ public class BoidsSimulation {
 	final static int SCREEN_HEIGHT = 800;
 
 	public static void main(String[] args) {
-//		var model = new BoidsModel(
-//				SEPARATION_WEIGHT, ALIGNMENT_WEIGHT, COHESION_WEIGHT,
-//				ENVIRONMENT_WIDTH, ENVIRONMENT_HEIGHT,
-//				MAX_SPEED,
-//				PERCEPTION_RADIUS,
-//				AVOID_RADIUS);
-//		var sim = new BoidsSimulator(model);
-//
-//		var view = new BoidsView(model, sim, SCREEN_WIDTH, SCREEN_HEIGHT);
-//		sim.attachView(view);
-//		sim.runSimulationLoop();
+		ActorSystem system = ActorSystem.create("boid-system");
 
-//		ActorSystem<BoidActor.Greet> system = ActorSystem.create(BoidActor.create(), "hello-world");
-//		system.tell(new BoidActor.Greet("Akka Typed", system.ignoreRef()));
-//		try {
-//			Thread.sleep(5000);
-//		} catch (InterruptedException e) {
-//			e.printStackTrace();
-//		}
-//		system.terminate();
+		var model = new BoidsModel(
+				SEPARATION_WEIGHT, ALIGNMENT_WEIGHT, COHESION_WEIGHT,
+				ENVIRONMENT_WIDTH, ENVIRONMENT_HEIGHT,
+				MAX_SPEED,
+				PERCEPTION_RADIUS,
+				AVOID_RADIUS);
 
-//		ActorRef<PingPongerJava.PingPongJava> pingPonger = ActorSystem.create(PingPongerJava.create(10), "pingPonger");
-//		pingPonger.tell(new PingPongerJava.PingPongJava.Ping(pingPonger.unsafeUpcast()));
+		ActorRef sim = system.actorOf(Props.create(BoidsSimulator.class), "BoidsSimulatorActor");
+		sim.tell(new BootSimulationMsg(model), ActorRef.noSender());
 
-		ActorSystem<Void> system = ActorSystem.create(Behaviors.setup(context -> {
-			ActorRef<PingPongerJava.PingPongJava> pingActor = context.spawn(PingPongerJava.create(10), "pingActor");
-			ActorRef<PingPongerJava.PingPongJava> pongActor = context.spawn(PingPongerJava.create(10), "pongActor");
-
-			// Inizializza la sequenza di ping-pong
-			pingActor.tell(new PingPongerJava.PingPongJava.Ping(pongActor));
-
-			return Behaviors.empty();
-		}), "PingPongSystem");
+		var view = new BoidsView(model, sim, SCREEN_WIDTH, SCREEN_HEIGHT);
+		sim.tell(new AttachViewMsg(view), ActorRef.noSender());
+//		sim.tell(new RunSimulationLoopMsg(), ActorRef.noSender());
 	}
 }
