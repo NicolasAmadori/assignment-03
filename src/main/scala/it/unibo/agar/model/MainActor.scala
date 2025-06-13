@@ -1,3 +1,57 @@
+//package it.unibo.agar.model
+//
+//import akka.actor.typed.{ActorRef, Behavior}
+//import akka.actor.typed.scaladsl.Behaviors
+//import it.unibo.agar.Message
+//import it.unibo.agar.model.PlayerActor.{Boot, SendActors, PlayerActorMessage}
+//
+//object MainActor:
+//
+//  sealed trait MainActorMessage extends Message
+//  case class Boot(width: Int, height: Int, numFoods: Int) extends MainActorMessage
+//  case class Connect(replyTo: ActorRef[PlayerActorMessage]) extends MainActorMessage
+//
+//  final case class State(
+//                          mainActor: ActorRef[MainActorMessage],
+//                          actors: List[ActorRef[PlayerActorMessage]],
+//                          world: World
+//                        )
+//
+//  def receiveBoot(): Behavior[MainActorMessage] =
+//    Behaviors.setup: context =>
+//      Behaviors.receiveMessage:
+//        case Boot(width, height, numFoods) =>
+//          context.log.info("Received Boot: " + context.self)
+//
+//          val foods = GameInitializer.initialFoods(numFoods, width, height)
+//          val actors = List.empty[ActorRef[PlayerActorMessage]]
+//
+//          context.log.info("Boot complete, transitioning to connect behavior.")
+//
+//          receiveConnect(State(context.self, actors, World(width, height, Seq.empty[Player], foods)))
+//
+//        case Connect(_) =>
+//          context.log.info("Received Connect before Boot, ignoring")
+//          Behaviors.same
+//
+//  def receiveConnect(state: State): Behavior[MainActorMessage] =
+//    Behaviors.receive: (context, message) =>
+//      message match
+//        case Connect(replyTo) =>
+//          context.log.info("Received Connect, sending world from: " + context.self)
+//          replyTo ! PlayerActor.Boot(state.mainActor, state.actors, state.world)
+//
+//          val updatedActors = replyTo :: state.actors
+//
+//          updatedActors.foreach(_ ! SendActors(updatedActors))
+//
+//          val newState = state.copy(actors = updatedActors)
+//          receiveConnect(newState)
+//
+//        case _: Boot =>
+//          context.log.info("Received Boot while in Connect state, ignoring")
+//          Behaviors.same
+//
 package it.unibo.agar.model
 
 import akka.actor.typed.{ActorRef, Behavior}
