@@ -22,6 +22,8 @@ object Main extends SimpleSwingApplication:
   private val players = GameInitializer.initialPlayers(numPlayers, width, height)
   private val foods = GameInitializer.initialFoods(numFoods, width, height)
   private val manager = new MockGameStateManager(World(width, height, players, foods))
+  
+  
 
   private val timer = new Timer()
   private val task: TimerTask = new TimerTask:

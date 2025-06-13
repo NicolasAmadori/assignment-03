@@ -1,6 +1,11 @@
 package it.unibo.agar.model
 
-class MockGameStateManager(
+trait GameStateManager:
+
+  def getWorld: World
+  def movePlayerDirection(id: String, dx: Double, dy: Double): Unit
+
+class DistributedGameStateManager(
     var world: World,
     val speed: Double = 10.0
 ) extends GameStateManager:
