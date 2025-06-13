@@ -7,7 +7,7 @@ public class Boid {
 
     private P2d pos;
     private V2d vel;
-    private BoidsModel model;
+    private final BoidsModel model;
 
     public Boid(BoidsModel model) {
     	this.pos = model.getRandomPosition();

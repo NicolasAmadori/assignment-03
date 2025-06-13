@@ -1,10 +1,7 @@
 package pcd.ass01;
 
-import java.util.ArrayList;
 import akka.actor.*;
 
-import pcd.ass01.actors.BoidActor;
-import static pcd.ass01.actors.BoidExchangeProtocol.*;
 import static pcd.ass01.SimulatorExchangeProtocol.*;
 
 public class BoidsSimulation {
@@ -32,11 +29,10 @@ public class BoidsSimulation {
 				PERCEPTION_RADIUS,
 				AVOID_RADIUS);
 
-		ActorRef sim = system.actorOf(Props.create(BoidsSimulator.class), "BoidsSimulatorActor");
+		ActorRef sim = system.actorOf(Props.create(BoidsSimulatorActor.class), "SIM");
 		sim.tell(new BootSimulationMsg(model), ActorRef.noSender());
 
 		var view = new BoidsView(model, sim, SCREEN_WIDTH, SCREEN_HEIGHT);
 		sim.tell(new AttachViewMsg(view), ActorRef.noSender());
-//		sim.tell(new RunSimulationLoopMsg(), ActorRef.noSender());
 	}
 }

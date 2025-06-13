@@ -90,7 +90,7 @@
                         <configuration>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>pcd.ass01.actors.PingPongerJava</mainClass>
+                                    <mainClass>pcd.ass01.BoidsSimulation</mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>

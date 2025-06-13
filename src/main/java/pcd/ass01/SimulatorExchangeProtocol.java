@@ -14,6 +14,6 @@ public class SimulatorExchangeProtocol {
     public record PauseSimulationMsg() {}
     public record StartSimulationMsg(int nBoids) {}
     public record StopSimulationMsg() {}
-    public record RunSimulationLoopMsg() {}
+    public record StopSimulatorMsg() {}
     public record RunSimulationMsg() {}
 }

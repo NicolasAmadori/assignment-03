@@ -1,6 +1,7 @@
 package pcd.ass01;
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
+import pcd.ass01.actors.BoidExchangeProtocol;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -81,6 +82,19 @@ public class BoidsView implements ChangeListener, ActionListener {
 
 		cp.add(BorderLayout.SOUTH, controlPanel);
 		frame.setContentPane(cp);
+		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		frame.addWindowListener(new java.awt.event.WindowAdapter() {
+			@Override
+			public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+				if (JOptionPane.showConfirmDialog(frame,
+						"Are you sure you want to close this window?", "Close Window?",
+						JOptionPane.YES_NO_OPTION,
+						JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
+					simulator.tell(new StopSimulatorMsg(), ActorRef.noSender());
+					System.exit(0);
+				}
+			}
+		});
 
 		frame.setVisible(true);
 	}

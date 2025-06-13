@@ -1,20 +1,15 @@
 package pcd.ass01.actors;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import akka.actor.AbstractActor;
+import akka.actor.AbstractActorWithStash;
 import akka.actor.ActorRef;
 
 import pcd.ass01.Boid;
 import static pcd.ass01.actors.BoidExchangeProtocol.*;
 
-public class BoidActor extends AbstractActor {
+public class BoidActor extends AbstractActorWithStash {
 
     private Boid boid;
-    private List<Boid> boids;
-    private List<ActorRef> actorBoids;
-    private ActorRef viewActor;
+    private ActorRef simulatorActor;
     private Receive lastReceive;
 
     /**
@@ -29,10 +24,8 @@ public class BoidActor extends AbstractActor {
     }
 
     private void onBootMsg(BootMsg msg) {
-        log("BootMsg received");
-        this.actorBoids = msg.actorBoids();
-        this.boid = new Boid(msg.model());
-        this.boids = new ArrayList<>();
+       // log("BootMsg received");
+        this.boid = msg.boid();
         lastReceive = receiverUpdate();
         this.getContext().become(lastReceive);
     }
@@ -44,47 +37,22 @@ public class BoidActor extends AbstractActor {
     public Receive receiverUpdate() {
         return receiveBuilder()
                 .match(UpdateMsg.class, this::onUpdate)
+                .match(PauseMsg.class, this::onPauseMsg)
+                .match(ResumeMsg.class, (msg) -> { this.stash(); })
                 .match(StopMsg.class, this::onStopMsg)
                 .build();
     }
 
     private void onUpdate(UpdateMsg msg) {
-        log("UpdateMsg received");
-        viewActor = msg.replyTo();
-        actorBoids.forEach(actor -> {
-            actor.tell(new SendBoidMsg(boid), this.getSelf());
-        });
-        lastReceive = receiverBoids();
-        this.getContext().become(lastReceive);
-    }
-
-    /**
-     * Behaviour to only receive Boids by the other actors
-     * A stop message can be received to stop the actor
-     */
-    public Receive receiverBoids() {
-        return receiveBuilder()
-                .match(SendBoidMsg.class, this::onSendBoidMsg)
-                .match(StopMsg.class, this::onStopMsg)
-                .match(PauseMsg.class, this::onPauseMsg)
-                .build();
-    }
-
-    private void onSendBoidMsg(SendBoidMsg msg) {
-        log("SendBoidMsg received");
-        boids.add(msg.boid());
-        if (boids.size() == actorBoids.size()) {
-            log("All boids received by the other actors");
-            boid.update(boids);
-            boids.clear();
-            viewActor.tell(new SendBoidMsg(boid), this.getSelf());
-            lastReceive = receiverUpdate();
-            this.getContext().become(lastReceive);
-        }
+       // log("UpdateMsg received");
+        simulatorActor = msg.replyTo();
+        boid.update(msg.boids());
+        simulatorActor.tell(new SendBoidMsg(boid), this.getSelf());
     }
 
     private void onPauseMsg(PauseMsg msg) {
-        log("PauseMsg received");
+       // log("PauseMsg received");
+        this.unstashAll();
         this.getContext().become(receiverResume());
     }
 
@@ -95,16 +63,19 @@ public class BoidActor extends AbstractActor {
     public Receive receiverResume() {
         return receiveBuilder()
                 .match(ResumeMsg.class, this::onResumeMsg)
+                .match(UpdateMsg.class, (msg) -> { this.stash(); })
                 .match(StopMsg.class, this::onStopMsg)
                 .build();
     }
 
     private void onResumeMsg(ResumeMsg msg) {
-        log("ResumeMsg received");
+       // log("ResumeMsg received");
+        this.unstashAll();
         this.getContext().become(lastReceive);
     }
 
     private void onStopMsg(StopMsg msg) {
+       // log("StopMsg received");
         this.getContext().stop(this.getSelf());
     }
 
