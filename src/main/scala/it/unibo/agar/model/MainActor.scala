@@ -101,11 +101,11 @@ class MainActor(context: ActorContext[MainActor.MainActorMessage])
     case Connect(replyTo) =>
       stateOpt match
         case Some(state) =>
-          context.log.info("Received Connect, sending world from: " + context.self)
+          context.log.info("Received Connect, sending boot to: " + replyTo)
           replyTo ! PlayerActor.Boot(state.mainActor, state.actors, state.world)
 
           val updatedActors = replyTo :: state.actors
-          updatedActors.foreach(_ ! SendActors(updatedActors))
+          state.actors.foreach(_ ! SendActors(updatedActors)) // send to everyone except the new actor
 
           val newState = state.copy(actors = updatedActors)
           stateOpt = Some(newState)

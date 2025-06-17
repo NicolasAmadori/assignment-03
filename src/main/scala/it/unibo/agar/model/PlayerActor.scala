@@ -43,6 +43,9 @@ object PlayerActor:
   sealed trait PlayerActorMessage extends Message
   case class Boot(mainActor: ActorRef[MainActorMessage], actors: List[ActorRef[PlayerActorMessage]], world: World) extends PlayerActorMessage
   case class SendActors(actors: List[ActorRef[PlayerActorMessage]]) extends PlayerActorMessage
+  case class UpdatePlayer(player: Player) extends PlayerActorMessage
+  case class EatPlayer(player: Player) extends PlayerActorMessage
+  case class EatFood(eatenFood: Food, newFood: Food) extends PlayerActorMessage
 
   def apply(): Behavior[PlayerActorMessage] =
     Behaviors.setup(context => new PlayerActor(context))
@@ -54,21 +57,35 @@ class PlayerActor(context: ActorContext[PlayerActor.PlayerActorMessage])
 
   private var mainActorOpt: Option[ActorRef[MainActorMessage]] = None
   private var actorsList: List[ActorRef[PlayerActorMessage]] = Nil
-  private var worldOpt: Option[World] = None
+  private var gameStateManagerOpt: Option[DistributedGameStateManager] = None
+  private var localPlayer: Option[Player] = None
 
   override def onMessage(msg: PlayerActorMessage): Behavior[PlayerActorMessage] = msg match
     case Boot(mainActor, actors, world) =>
-      context.log.info("Received World")
+      context.log.info(context.self.toString + ": Boot received")
       mainActorOpt = Some(mainActor)
       actorsList = actors
-      worldOpt = Some(world)
+      localPlayer = Some(GameInitializer.initialPlayer(context.self.toString, world.width, world.height))
+      gameStateManagerOpt = Some(DistributedGameStateManager(world, localPlayer.get))
       this
 
     case SendActors(newActors) =>
-      context.log.info("SendActors received")
+      context.log.info(context.self.toString + ": SendActors received")
       actorsList = newActors
       this
 
+    case UpdatePlayer(player) =>
+      gameStateManagerOpt.foreach(gsm => gsm.updatePlayer(player))
+      this
+
+    case EatPlayer(player) =>
+      gameStateManagerOpt.foreach(gsm => gsm.eatPlayer(player))
+      this
+
+    case EatFood(eatenFood, newFood) =>
+      gameStateManagerOpt.foreach(gsm => gsm.eatFood(eatenFood, newFood))
+      this
+
     case _ =>
-      context.log.info("Received anything else while in current state, ignoring")
+      context.log.info(context.self.toString + ": Received anything else while in current state, ignoring")
       this

@@ -27,6 +27,10 @@ case class World(
     foods: Seq[Food]
 ):
 
+  def getWidth: Int = width
+
+  def getHeight: Int = height
+
   def playersExcludingSelf(player: Player): Seq[Player] =
     players.filterNot(_.id == player.id)
 
