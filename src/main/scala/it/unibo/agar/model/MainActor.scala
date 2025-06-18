@@ -1,57 +1,3 @@
-//package it.unibo.agar.model
-//
-//import akka.actor.typed.{ActorRef, Behavior}
-//import akka.actor.typed.scaladsl.Behaviors
-//import it.unibo.agar.Message
-//import it.unibo.agar.model.PlayerActor.{Boot, SendActors, PlayerActorMessage}
-//
-//object MainActor:
-//
-//  sealed trait MainActorMessage extends Message
-//  case class Boot(width: Int, height: Int, numFoods: Int) extends MainActorMessage
-//  case class Connect(replyTo: ActorRef[PlayerActorMessage]) extends MainActorMessage
-//
-//  final case class State(
-//                          mainActor: ActorRef[MainActorMessage],
-//                          actors: List[ActorRef[PlayerActorMessage]],
-//                          world: World
-//                        )
-//
-//  def receiveBoot(): Behavior[MainActorMessage] =
-//    Behaviors.setup: context =>
-//      Behaviors.receiveMessage:
-//        case Boot(width, height, numFoods) =>
-//          context.log.info("Received Boot: " + context.self)
-//
-//          val foods = GameInitializer.initialFoods(numFoods, width, height)
-//          val actors = List.empty[ActorRef[PlayerActorMessage]]
-//
-//          context.log.info("Boot complete, transitioning to connect behavior.")
-//
-//          receiveConnect(State(context.self, actors, World(width, height, Seq.empty[Player], foods)))
-//
-//        case Connect(_) =>
-//          context.log.info("Received Connect before Boot, ignoring")
-//          Behaviors.same
-//
-//  def receiveConnect(state: State): Behavior[MainActorMessage] =
-//    Behaviors.receive: (context, message) =>
-//      message match
-//        case Connect(replyTo) =>
-//          context.log.info("Received Connect, sending world from: " + context.self)
-//          replyTo ! PlayerActor.Boot(state.mainActor, state.actors, state.world)
-//
-//          val updatedActors = replyTo :: state.actors
-//
-//          updatedActors.foreach(_ ! SendActors(updatedActors))
-//
-//          val newState = state.copy(actors = updatedActors)
-//          receiveConnect(newState)
-//
-//        case _: Boot =>
-//          context.log.info("Received Boot while in Connect state, ignoring")
-//          Behaviors.same
-//
 package it.unibo.agar.model
 
 import akka.actor.typed.{ActorRef, Behavior}
@@ -64,12 +10,9 @@ object MainActor:
   sealed trait MainActorMessage extends Message
   case class Boot(width: Int, height: Int, numFoods: Int) extends MainActorMessage
   case class Connect(replyTo: ActorRef[PlayerActorMessage]) extends MainActorMessage
-
-  final case class State(
-                          mainActor: ActorRef[MainActorMessage],
-                          actors: List[ActorRef[PlayerActorMessage]],
-                          world: World
-                        )
+  case class UpdatePlayer(player: Player) extends MainActorMessage
+  case class EatPlayers(eatenPlayers: Seq[Player]) extends MainActorMessage
+  case class EatFoods(eatenFoods: Seq[Food], newFoods: Seq[Food]) extends MainActorMessage
 
   // Factory method per l'actor
   def apply(): Behavior[MainActorMessage] =
@@ -80,37 +23,39 @@ class MainActor(context: ActorContext[MainActor.MainActorMessage])
 
   import MainActor.*
 
-  private var stateOpt: Option[State] = None
+  private var actorsList: List[ActorRef[PlayerActorMessage]] = Nil
+  private var worldOpt: Option[World] = None
 
   override def onMessage(msg: MainActorMessage): Behavior[MainActorMessage] = msg match
     case Boot(width, height, numFoods) =>
       context.log.info("Received Boot: " + context.self)
 
       val foods = GameInitializer.initialFoods(numFoods, width, height)
-      val actors = List.empty[ActorRef[PlayerActorMessage]]
-      val mainActorRef = context.self
-
-      val world = World(width, height, Seq.empty[Player], foods)
-      val newState = State(mainActorRef, actors, world)
-
-      stateOpt = Some(newState)
-
+      worldOpt = Some(World(width, height, Seq.empty[Player], foods))
+      actorsList = List.empty[ActorRef[PlayerActorMessage]]
       context.log.info("Boot complete, transitioning to connect behavior.")
       this
 
     case Connect(replyTo) =>
-      stateOpt match
-        case Some(state) =>
-          context.log.info("Received Connect, sending boot to: " + replyTo)
-          replyTo ! PlayerActor.Boot(state.mainActor, state.actors, state.world)
+      worldOpt.foreach(w => {
+        context.log.info("Received Connect, sending boot to: " + replyTo)
+        replyTo ! PlayerActor.Boot(context.self, actorsList, w)
+        val updatedActors = replyTo :: actorsList
+        actorsList.foreach(_ ! SendActors(updatedActors)) // send to everyone except the new actor
+        actorsList = updatedActors
+        context.log.info(w.players.toString())
+      })
+      this
 
-          val updatedActors = replyTo :: state.actors
-          state.actors.foreach(_ ! SendActors(updatedActors)) // send to everyone except the new actor
+    case UpdatePlayer(player) =>
+      context.log.info("received a player by the mainactor: " + player.toString)
+      worldOpt.map(w => w.updatePlayer(player))
+      this
 
-          val newState = state.copy(actors = updatedActors)
-          stateOpt = Some(newState)
-          this
+    case EatFoods(eatenFoods, newFoods) =>
+      worldOpt.map(w => w.removeFoods(eatenFoods).addFoods(newFoods))
+      this
 
-        case None =>
-          context.log.info("Received Connect before Boot, ignoring")
-          this
+    case EatPlayers(players) =>
+      worldOpt.map(w => w.removePlayers(players))
+      this

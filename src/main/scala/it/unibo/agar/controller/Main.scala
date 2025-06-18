@@ -6,7 +6,7 @@ import it.unibo.agar.model.*
 import it.unibo.agar.model.MainActor.{Boot, Connect}
 import it.unibo.agar.model.PlayerActor.PlayerActorMessage
 
-import it.unibo.agar.view.GlobalView
+//import it.unibo.agar.view.GlobalView
 import it.unibo.agar.view.LocalView
 
 import java.awt.Window
@@ -19,11 +19,7 @@ object Main extends SimpleSwingApplication:
 
   private val width = 1000
   private val height = 1000
-//  private val numPlayers = 4
   private val numFoods = 100
-//  private val players = GameInitializer.initialPlayers(numPlayers, width, height)
-//  private val foods = GameInitializer.initialFoods(numFoods, width, height)
-//  private val manager = new MockGameStateManager(World(width, height, players, foods))
 
 //  private val timer = new Timer()
 //  private val task: TimerTask = new TimerTask:
@@ -38,17 +34,16 @@ object Main extends SimpleSwingApplication:
 
   system ! Boot(width, height, numFoods)
 
-  // Crea due attori Player e li collega
   private val player1: ActorRef[PlayerActorMessage] = system.systemActorOf(PlayerActor(), "player1")
   private val player2: ActorRef[PlayerActorMessage] = system.systemActorOf(PlayerActor(), "player2")
-  private val player3: ActorRef[PlayerActorMessage] = system.systemActorOf(PlayerActor(), "player3")
+//  private val player3: ActorRef[PlayerActorMessage] = system.systemActorOf(PlayerActor(), "player3")
   
   system.scheduler.scheduleOnce(
     Duration.ofMillis(500),
     () => {
       system ! Connect(player1)
       system ! Connect(player2)
-      system ! Connect(player3)
+//      system ! Connect(player3)
     },
     system.executionContext
   )
@@ -56,4 +51,11 @@ object Main extends SimpleSwingApplication:
   println("Avviato sistema di test attori")
 
   override def top: Frame =
-    new Frame { visible = false }
+    // Open both views at startup
+//    new GlobalView(manager).open()
+//    new LocalView(manager, "p1").open()
+//    new LocalView(manager, "p2").open()
+    // No launcher window, just return an empty frame (or null if allowed)
+    new Frame {
+      visible = false
+    }

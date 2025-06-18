@@ -1,5 +1,6 @@
 package it.unibo.agar.model
 
+
 sealed trait Entity:
 
   def id: String
@@ -38,7 +39,8 @@ case class World(
     players.find(_.id == id)
 
   def updatePlayer(player: Player): World =
-    copy(players = players.map(p => if (p.id == player.id) player else p))
+    val (same, others) = players.partition(_.id == player.id) //If user is not present, it must be added
+    copy(players = others :+ player)
 
   def removePlayers(ids: Seq[Player]): World =
     copy(players = players.filterNot(p => ids.map(_.id).contains(p.id)))

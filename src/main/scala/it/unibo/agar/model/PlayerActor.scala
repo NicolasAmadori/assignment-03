@@ -1,42 +1,10 @@
-//package it.unibo.agar.model
-//
-//import akka.actor.typed.scaladsl.Behaviors
-//import akka.actor.typed.{ActorRef, Behavior}
-//import it.unibo.agar.Message
-//import it.unibo.agar.model.MainActor.MainActorMessage
-//
-//object PlayerActor:
-//
-//  sealed trait PlayerActorMessage extends Message
-//  case class Boot(mainActor: ActorRef[MainActorMessage], actors: List[ActorRef[PlayerActorMessage]], world: World) extends PlayerActorMessage
-//  case class SendActors(actors: List[ActorRef[PlayerActorMessage]]) extends PlayerActorMessage
-//
-//  def boot(): Behavior[PlayerActorMessage] =
-//    Behaviors.setup: context =>
-//      Behaviors.receiveMessage:
-//        case Boot(mainActor, actors, world) =>
-//          context.log.info("Received World")
-//          receiveGameUpdate(mainActor, actors, world)
-//        case _ =>
-//          context.log.info("Received anything else while in boot state, ignoring")
-//          Behaviors.same
-//
-//  def receiveGameUpdate(mainActor: ActorRef[MainActorMessage], actors: List[ActorRef[PlayerActorMessage]], world: World): Behavior[PlayerActorMessage] =
-//    Behaviors.setup: context =>
-//      Behaviors.receiveMessage:
-//        case SendActors(actors) =>
-//          context.log.info("SendActors received")
-//          Behaviors.same
-//        case _ =>
-//          context.log.info("Received anything else while in receiveGameUpdate state, ignoring")
-//          Behaviors.same
-//
 package it.unibo.agar.model
 
 import akka.actor.typed.{ActorRef, Behavior}
 import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
 import it.unibo.agar.Message
 import it.unibo.agar.model.MainActor.MainActorMessage
+import it.unibo.agar.view.LocalView
 
 object PlayerActor:
 
@@ -44,8 +12,8 @@ object PlayerActor:
   case class Boot(mainActor: ActorRef[MainActorMessage], actors: List[ActorRef[PlayerActorMessage]], world: World) extends PlayerActorMessage
   case class SendActors(actors: List[ActorRef[PlayerActorMessage]]) extends PlayerActorMessage
   case class UpdatePlayer(player: Player) extends PlayerActorMessage
-  case class EatPlayer(player: Player) extends PlayerActorMessage
-  case class EatFood(eatenFood: Food, newFood: Food) extends PlayerActorMessage
+  case class EatPlayers(eatenPlayers: Seq[Player]) extends PlayerActorMessage
+  case class EatFoods(eatenFoods: Seq[Food], newFoods: Seq[Food]) extends PlayerActorMessage
 
   def apply(): Behavior[PlayerActorMessage] =
     Behaviors.setup(context => new PlayerActor(context))
@@ -58,15 +26,22 @@ class PlayerActor(context: ActorContext[PlayerActor.PlayerActorMessage])
   private var mainActorOpt: Option[ActorRef[MainActorMessage]] = None
   private var actorsList: List[ActorRef[PlayerActorMessage]] = Nil
   private var gameStateManagerOpt: Option[DistributedGameStateManager] = None
-  private var localPlayer: Option[Player] = None
+  private var localPlayerOpt: Option[Player] = None
 
   override def onMessage(msg: PlayerActorMessage): Behavior[PlayerActorMessage] = msg match
     case Boot(mainActor, actors, world) =>
       context.log.info(context.self.toString + ": Boot received")
       mainActorOpt = Some(mainActor)
       actorsList = actors
-      localPlayer = Some(GameInitializer.initialPlayer(context.self.toString, world.width, world.height))
-      gameStateManagerOpt = Some(DistributedGameStateManager(world, localPlayer.get, context.self))
+
+      val playerId: String = "p" + (actors.length + 1)
+      localPlayerOpt = Some(GameInitializer.initialPlayer(playerId, world.width, world.height))
+
+      mainActor ! MainActor.UpdatePlayer(localPlayerOpt.get)
+      actors.foreach(_ ! PlayerActor.UpdatePlayer(localPlayerOpt.get))
+
+      gameStateManagerOpt = Some(DistributedGameStateManager(world, localPlayerOpt.get, mainActorOpt.get, actorsList))
+      new LocalView(gameStateManagerOpt.get, playerId).open()
       this
 
     case SendActors(newActors) =>
@@ -74,18 +49,18 @@ class PlayerActor(context: ActorContext[PlayerActor.PlayerActorMessage])
       actorsList = newActors
       this
 
-//    case UpdatePlayer(player) =>
-//      gameStateManagerOpt.foreach(gsm => gsm.updatePlayer(player))
-//      this
-//
-//    case EatPlayer(player) =>
-//      gameStateManagerOpt.foreach(gsm => gsm.eatPlayer(player))
-//      this
-//
-//    case EatFood(eatenFood, newFood) =>
-//      gameStateManagerOpt.foreach(gsm => gsm.eatFood(eatenFood, newFood))
-//      this
+    case UpdatePlayer(player) =>
+      gameStateManagerOpt.foreach(gsm => gsm.world = gameStateManagerOpt.get.world.updatePlayer(player))
+      this
 
-    case _ =>
+    case EatPlayers(players) =>
+      gameStateManagerOpt.foreach(gsm => gsm.world = gameStateManagerOpt.get.world.removePlayers(players))
+      this
+
+    case EatFoods(eatenFoods, newFoods) =>
+      gameStateManagerOpt.foreach(gsm => gsm.world = gsm.world.removeFoods(eatenFoods).addFoods(newFoods))
+      this
+
+    case null =>
       context.log.info(context.self.toString + ": Received anything else while in current state, ignoring")
       this
