@@ -66,7 +66,7 @@ class PlayerActor(context: ActorContext[PlayerActor.PlayerActorMessage])
       mainActorOpt = Some(mainActor)
       actorsList = actors
       localPlayer = Some(GameInitializer.initialPlayer(context.self.toString, world.width, world.height))
-      gameStateManagerOpt = Some(DistributedGameStateManager(world, localPlayer.get))
+      gameStateManagerOpt = Some(DistributedGameStateManager(world, localPlayer.get, context.self))
       this
 
     case SendActors(newActors) =>
@@ -74,17 +74,17 @@ class PlayerActor(context: ActorContext[PlayerActor.PlayerActorMessage])
       actorsList = newActors
       this
 
-    case UpdatePlayer(player) =>
-      gameStateManagerOpt.foreach(gsm => gsm.updatePlayer(player))
-      this
-
-    case EatPlayer(player) =>
-      gameStateManagerOpt.foreach(gsm => gsm.eatPlayer(player))
-      this
-
-    case EatFood(eatenFood, newFood) =>
-      gameStateManagerOpt.foreach(gsm => gsm.eatFood(eatenFood, newFood))
-      this
+//    case UpdatePlayer(player) =>
+//      gameStateManagerOpt.foreach(gsm => gsm.updatePlayer(player))
+//      this
+//
+//    case EatPlayer(player) =>
+//      gameStateManagerOpt.foreach(gsm => gsm.eatPlayer(player))
+//      this
+//
+//    case EatFood(eatenFood, newFood) =>
+//      gameStateManagerOpt.foreach(gsm => gsm.eatFood(eatenFood, newFood))
+//      this
 
     case _ =>
       context.log.info(context.self.toString + ": Received anything else while in current state, ignoring")
