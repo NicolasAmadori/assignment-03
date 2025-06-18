@@ -5,10 +5,10 @@ import akka.actor.typed.ActorRef
 import scala.util.Random
 
 trait GameStateManager:
-  
+
   def movePlayerDirection(dx: Double, dy: Double): Unit
   def tick() : Unit
-  
+
 class DistributedGameStateManager(
     var world: World,
     val player: Player,
@@ -19,6 +19,7 @@ class DistributedGameStateManager(
 
   private var deltaX: Double = 0.0
   private var deltaY: Double = 0.0
+  world = world.updatePlayer(player)
 
   // Move a player in a given direction (dx, dy)
   def movePlayerDirection(dx: Double, dy: Double): Unit =

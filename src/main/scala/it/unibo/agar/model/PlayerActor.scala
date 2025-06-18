@@ -6,6 +6,9 @@ import it.unibo.agar.Message
 import it.unibo.agar.model.MainActor.MainActorMessage
 import it.unibo.agar.view.LocalView
 
+import scala.concurrent.ExecutionContextExecutor
+import scala.concurrent.duration.DurationInt
+
 object PlayerActor:
 
   sealed trait PlayerActorMessage extends Message
@@ -14,6 +17,7 @@ object PlayerActor:
   case class UpdatePlayer(player: Player) extends PlayerActorMessage
   case class EatPlayers(eatenPlayers: Seq[Player]) extends PlayerActorMessage
   case class EatFoods(eatenFoods: Seq[Food], newFoods: Seq[Food]) extends PlayerActorMessage
+  case object Tick extends PlayerActorMessage
 
   def apply(): Behavior[PlayerActorMessage] =
     Behaviors.setup(context => new PlayerActor(context))
@@ -42,6 +46,11 @@ class PlayerActor(context: ActorContext[PlayerActor.PlayerActorMessage])
 
       gameStateManagerOpt = Some(DistributedGameStateManager(world, localPlayerOpt.get, mainActorOpt.get, actorsList))
       new LocalView(gameStateManagerOpt.get, playerId).open()
+
+      implicit val ec: ExecutionContextExecutor = context.executionContext
+      context.system.scheduler.scheduleAtFixedRate(30.millis, 30.millis) {
+        () => context.self ! PlayerActor.Tick
+      }
       this
 
     case SendActors(newActors) =>
@@ -58,7 +67,13 @@ class PlayerActor(context: ActorContext[PlayerActor.PlayerActorMessage])
       this
 
     case EatFoods(eatenFoods, newFoods) =>
+      context.log.info("received eatFoods by: " + context.self)
       gameStateManagerOpt.foreach(gsm => gsm.world = gsm.world.removeFoods(eatenFoods).addFoods(newFoods))
+      this
+
+    case Tick =>
+//      context.log.debug(s"${context.self.path.name}: Tick received")
+      gameStateManagerOpt.foreach(_.tick())
       this
 
     case null =>

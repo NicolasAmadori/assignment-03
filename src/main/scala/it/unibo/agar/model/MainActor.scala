@@ -48,7 +48,6 @@ class MainActor(context: ActorContext[MainActor.MainActorMessage])
       this
 
     case UpdatePlayer(player) =>
-      context.log.info("received a player by the mainactor: " + player.toString)
       worldOpt.map(w => w.updatePlayer(player))
       this
 

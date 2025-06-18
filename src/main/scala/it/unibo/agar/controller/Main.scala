@@ -37,6 +37,8 @@ object Main extends SimpleSwingApplication:
   private val player1: ActorRef[PlayerActorMessage] = system.systemActorOf(PlayerActor(), "player1")
   private val player2: ActorRef[PlayerActorMessage] = system.systemActorOf(PlayerActor(), "player2")
 //  private val player3: ActorRef[PlayerActorMessage] = system.systemActorOf(PlayerActor(), "player3")
+//  private val player4: ActorRef[PlayerActorMessage] = system.systemActorOf(PlayerActor(), "player4")
+//  private val player5: ActorRef[PlayerActorMessage] = system.systemActorOf(PlayerActor(), "player5")
   
   system.scheduler.scheduleOnce(
     Duration.ofMillis(500),
@@ -44,6 +46,8 @@ object Main extends SimpleSwingApplication:
       system ! Connect(player1)
       system ! Connect(player2)
 //      system ! Connect(player3)
+//      system ! Connect(player4)
+//      system ! Connect(player5)
     },
     system.executionContext
   )
