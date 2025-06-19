@@ -53,4 +53,4 @@ object AgarViewUtils:
       g.fillOval(innerX, innerY, diameter - playerInnerBorder, diameter - playerInnerBorder)
       g.setColor(playerBorderColor)
       val (labelX, labelY) = toScreenLabel(player.x, player.y)
-      g.drawString(player.id, labelX, labelY)
+      g.drawString(player.id + " (" + player.mass.toInt + ")", labelX, labelY)

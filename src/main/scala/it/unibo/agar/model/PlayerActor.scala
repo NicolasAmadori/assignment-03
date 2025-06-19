@@ -12,7 +12,7 @@ import scala.concurrent.duration.DurationInt
 object PlayerActor:
 
   sealed trait PlayerActorMessage extends Message
-  case class Boot(mainActor: ActorRef[MainActorMessage], actors: List[ActorRef[PlayerActorMessage]], world: World) extends PlayerActorMessage
+  case class Boot(mainActor: ActorRef[MainActorMessage], actors: List[ActorRef[PlayerActorMessage]], world: World, player: Player) extends PlayerActorMessage
   case class SendActors(actors: List[ActorRef[PlayerActorMessage]]) extends PlayerActorMessage
   case class UpdatePlayer(player: Player) extends PlayerActorMessage
   case class EatPlayers(eatenPlayers: Seq[Player]) extends PlayerActorMessage
@@ -30,22 +30,22 @@ class PlayerActor(context: ActorContext[PlayerActor.PlayerActorMessage])
   private var mainActorOpt: Option[ActorRef[MainActorMessage]] = None
   private var actorsList: List[ActorRef[PlayerActorMessage]] = Nil
   private var gameStateManagerOpt: Option[DistributedGameStateManager] = None
-  private var localPlayerOpt: Option[Player] = None
+  private var localPlayerIdOpt: Option[String] = None
+  private var localViewOpt: Option[LocalView] = None
 
   override def onMessage(msg: PlayerActorMessage): Behavior[PlayerActorMessage] = msg match
-    case Boot(mainActor, actors, world) =>
-      context.log.info(context.self.toString + ": Boot received")
+    case Boot(mainActor, actors, world, player) =>
       mainActorOpt = Some(mainActor)
       actorsList = actors
+      localPlayerIdOpt = Some(player.id)
 
-      val playerId: String = "p" + (actors.length + 1)
-      localPlayerOpt = Some(GameInitializer.initialPlayer(playerId, world.width, world.height))
+      mainActor ! MainActor.UpdatePlayer(player)
+      actors.foreach(_ ! PlayerActor.UpdatePlayer(player))
 
-      mainActor ! MainActor.UpdatePlayer(localPlayerOpt.get)
-      actors.foreach(_ ! PlayerActor.UpdatePlayer(localPlayerOpt.get))
+      gameStateManagerOpt = Some(DistributedGameStateManager(world, player, mainActorOpt.get, actorsList))
 
-      gameStateManagerOpt = Some(DistributedGameStateManager(world, localPlayerOpt.get, mainActorOpt.get, actorsList))
-      new LocalView(gameStateManagerOpt.get, playerId).open()
+      localViewOpt = Some(new LocalView(gameStateManagerOpt.get, player.id))
+      localViewOpt.get.open()
 
       implicit val ec: ExecutionContextExecutor = context.executionContext
       context.system.scheduler.scheduleAtFixedRate(30.millis, 30.millis) {
@@ -54,8 +54,7 @@ class PlayerActor(context: ActorContext[PlayerActor.PlayerActorMessage])
       this
 
     case SendActors(newActors) =>
-      context.log.info(context.self.toString + ": SendActors received")
-      actorsList = newActors
+      gameStateManagerOpt.foreach(gsm => gsm.actors = newActors)
       this
 
     case UpdatePlayer(player) =>
@@ -63,17 +62,21 @@ class PlayerActor(context: ActorContext[PlayerActor.PlayerActorMessage])
       this
 
     case EatPlayers(players) =>
-      gameStateManagerOpt.foreach(gsm => gsm.world = gameStateManagerOpt.get.world.removePlayers(players))
-      this
+      if (players.map(_.id).contains(localPlayerIdOpt.get)) {
+        localViewOpt.foreach(_.close())
+        Behaviors.stopped
+      } else {
+        gameStateManagerOpt.foreach(gsm => gsm.world = gameStateManagerOpt.get.world.removePlayers(players))
+        Behaviors.same
+      }
 
     case EatFoods(eatenFoods, newFoods) =>
-      context.log.info("received eatFoods by: " + context.self)
       gameStateManagerOpt.foreach(gsm => gsm.world = gsm.world.removeFoods(eatenFoods).addFoods(newFoods))
       this
 
     case Tick =>
-//      context.log.debug(s"${context.self.path.name}: Tick received")
       gameStateManagerOpt.foreach(_.tick())
+      localViewOpt.foreach(_.repaint())
       this
 
     case null =>

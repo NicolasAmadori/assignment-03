@@ -10,16 +10,17 @@ trait GameStateManager:
   def tick() : Unit
 
 class DistributedGameStateManager(
-    var world: World,
-    val player: Player,
-    val mainActor: ActorRef[MainActor.MainActorMessage],
-    val actors: Seq[ActorRef[PlayerActor.PlayerActorMessage]],
-    val speed: Double = 10.0
+   var world: World,
+   var initialPlayer: Player,
+   val mainActor: ActorRef[MainActor.MainActorMessage],
+   var actors: Seq[ActorRef[PlayerActor.PlayerActorMessage]],
+   val speed: Double = 10.0
 ) extends GameStateManager:
 
   private var deltaX: Double = 0.0
   private var deltaY: Double = 0.0
-  world = world.updatePlayer(player)
+  val playerId: String = initialPlayer.id
+  world = world.updatePlayer(initialPlayer)
 
   // Move a player in a given direction (dx, dy)
   def movePlayerDirection(dx: Double, dy: Double): Unit =
@@ -27,28 +28,31 @@ class DistributedGameStateManager(
     deltaY = dy
 
   def tick(): Unit =
-    updatePlayerPosition()
-    updateWorldAfterMovement()
+    world = world.updatePlayer(updatePlayerPosition())
+    world = updateWorldAfterMovement()
 
   private def updatePlayerPosition(): Player =
-    val newX = (player.x + deltaX * speed).max(0).min(world.width)
-    val newY = (player.y + deltaY * speed).max(0).min(world.height)
-    player.copy(x = newX, y = newY)
+    val newX = (world.playerById(playerId).get.x + deltaX * speed).max(0).min(world.width)
+    val newY = (world.playerById(playerId).get.y + deltaY * speed).max(0).min(world.height)
+    world.playerById(playerId).get.copy(x = newX, y = newY)
 
   private def updateWorldAfterMovement(): World =
-    val foodEaten = world.foods.filter(food => EatingManager.canEatFood(player, food))
-    val playerEatsFood = foodEaten.foldLeft(player)((p, food) => p.grow(food))
+    val foodEaten = world.foods.filter(food => EatingManager.canEatFood(world.playerById(playerId).get, food))
+    val playerEatsFood = foodEaten.foldLeft(world.playerById(playerId).get)((p, food) => p.grow(food))
     val newFoods = foodEaten.map(food => Food(food.id, Random.nextInt(world.getWidth), Random.nextInt(world.getHeight), food.mass))
-    mainActor ! MainActor.EatFoods(foodEaten, newFoods)
-    actors.foreach(_ ! PlayerActor.EatFoods(foodEaten, newFoods))
+    if (foodEaten.nonEmpty)
+      mainActor ! MainActor.EatFoods(foodEaten, newFoods)
+      actors.foreach(_ ! PlayerActor.EatFoods(foodEaten, newFoods))
 
     val playersEaten = world
-      .playersExcludingSelf(player)
+      .playersExcludingSelf(world.playerById(playerId).get)
       .filter(player => EatingManager.canEatPlayer(playerEatsFood, player))
 
     val playerEatPlayers = playersEaten.foldLeft(playerEatsFood)((p, other) => p.grow(other))
-    mainActor ! MainActor.EatPlayers(playersEaten)
-    actors.foreach(_ ! PlayerActor.EatPlayers(playersEaten))
+
+    if (playersEaten.nonEmpty)
+      mainActor ! MainActor.EatPlayers(playersEaten)
+      actors.foreach(_ ! PlayerActor.EatPlayers(playersEaten))
 
     mainActor ! MainActor.UpdatePlayer(playerEatPlayers)
     actors.foreach(_ ! PlayerActor.UpdatePlayer(playerEatPlayers))
