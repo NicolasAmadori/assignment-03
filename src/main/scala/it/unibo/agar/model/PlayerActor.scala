@@ -8,6 +8,7 @@ import it.unibo.agar.view.LocalView
 
 import scala.concurrent.ExecutionContextExecutor
 import scala.concurrent.duration.DurationInt
+import scala.language.postfixOps
 
 object PlayerActor:
 
@@ -58,15 +59,26 @@ class PlayerActor(context: ActorContext[PlayerActor.PlayerActorMessage])
       this
 
     case UpdatePlayer(player) =>
-      gameStateManagerOpt.foreach(gsm => gsm.world = gameStateManagerOpt.get.world.updatePlayer(player))
-      this
+      if (gameStateManagerOpt.isEmpty)
+        this
+      else
+        gameStateManagerOpt.map(gsm =>
+          if (player.mass >= gsm.world.maxMass)
+            context.log.info("WINNER: " + player.id)
+//            localViewOpt.foreach(_.close())
+            Behaviors.stopped
+          else
+            gsm.world = gsm.world.updatePlayer(player)
+            Behaviors.same
+        ).get
 
     case EatPlayers(players) =>
-      if (players.map(_.id).contains(localPlayerIdOpt.get)) {
+      //remove player from actors
+      if (localPlayerIdOpt.isDefined && players.map(_.id).contains(localPlayerIdOpt.get)) {
         localViewOpt.foreach(_.close())
         Behaviors.stopped
       } else {
-        gameStateManagerOpt.foreach(gsm => gsm.world = gameStateManagerOpt.get.world.removePlayers(players))
+        gameStateManagerOpt.foreach(gsm => gsm.world = gsm.world.removePlayers(players))
         Behaviors.same
       }
 
@@ -75,6 +87,14 @@ class PlayerActor(context: ActorContext[PlayerActor.PlayerActorMessage])
       this
 
     case Tick =>
+      if (localPlayerIdOpt.isDefined)
+        val id = localPlayerIdOpt.get
+        if (gameStateManagerOpt.isDefined && gameStateManagerOpt.map(gsm => {
+          val p = gsm.world.playerById(id)
+          p.isDefined && (p.get.mass >= gsm.world.maxMass)
+        }).get)
+          context.log.info("WINNER: " + id)
+          return Behaviors.stopped
       gameStateManagerOpt.foreach(_.tick())
       localViewOpt.foreach(_.repaint())
       this

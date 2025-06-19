@@ -24,6 +24,7 @@ case class Food(id: String, x: Double, y: Double, mass: Double = 100.0) extends 
 case class World(
     width: Int,
     height: Int,
+    maxMass: Int,
     players: Seq[Player],
     foods: Seq[Food]
 ):

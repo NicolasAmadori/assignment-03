@@ -20,6 +20,7 @@ object Main extends SimpleSwingApplication:
   private val width = 1000
   private val height = 1000
   private val numFoods = 100
+  private val maxMass = 1000
 
 //  private val timer = new Timer()
 //  private val task: TimerTask = new TimerTask:
@@ -32,7 +33,7 @@ object Main extends SimpleSwingApplication:
   private val system: ActorSystem[MainActor.MainActorMessage] =
     ActorSystem(MainActor(), "AgarSystem")
 
-  system ! Boot(width, height, numFoods)
+  system ! Boot(width, height, numFoods, maxMass)
 
   private val player1: ActorRef[PlayerActorMessage] = system.systemActorOf(PlayerActor(), "player1")
   private val player2: ActorRef[PlayerActorMessage] = system.systemActorOf(PlayerActor(), "player2")

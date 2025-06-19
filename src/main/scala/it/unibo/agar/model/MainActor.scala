@@ -8,7 +8,7 @@ import it.unibo.agar.model.PlayerActor.{SendActors, PlayerActorMessage}
 object MainActor:
 
   sealed trait MainActorMessage extends Message
-  case class Boot(width: Int, height: Int, numFoods: Int) extends MainActorMessage
+  case class Boot(width: Int, height: Int, numFoods: Int, maxMass: Int) extends MainActorMessage
   case class Connect(replyTo: ActorRef[PlayerActorMessage]) extends MainActorMessage
   case class UpdatePlayer(player: Player) extends MainActorMessage
   case class EatPlayers(eatenPlayers: Seq[Player]) extends MainActorMessage
@@ -27,9 +27,9 @@ class MainActor(context: ActorContext[MainActor.MainActorMessage])
   private var worldOpt: Option[World] = None
 
   override def onMessage(msg: MainActorMessage): Behavior[MainActorMessage] = msg match
-    case Boot(width, height, numFoods) =>
+    case Boot(width, height, numFoods, maxMass) =>
       val foods = GameInitializer.initialFoods(numFoods, width, height)
-      worldOpt = Some(World(width, height, Seq.empty[Player], foods))
+      worldOpt = Some(World(width, height, maxMass, Seq.empty[Player], foods))
       actorsList = List.empty[ActorRef[PlayerActorMessage]]
       this
 
