@@ -4,7 +4,7 @@ import scala.util.Random
 
 object GameInitializer:
 
-  def initialPlayer(name: String, width: Int, height: Int, initialMass: Double = 120.0): Player =
+  def initialPlayer(name: String, width: Int, height: Int, initialMass: Double = 200.0): Player =
     Player(name, Random.nextInt(width), Random.nextInt(height), initialMass)
   
   def initialFoods(numFoods: Int, width: Int, height: Int, initialMass: Double = 100.0): Seq[Food] =

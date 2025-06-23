@@ -9,7 +9,7 @@ object MainActor:
 
   sealed trait MainActorMessage extends Message
   case class Boot(width: Int, height: Int, numFoods: Int, maxMass: Int) extends MainActorMessage
-  case class Connect(replyTo: ActorRef[PlayerActorMessage]) extends MainActorMessage
+  case class Connect(playerName: String, replyTo: ActorRef[PlayerActorMessage]) extends MainActorMessage
   case class UpdatePlayer(player: Player) extends MainActorMessage
   case class EatPlayers(eatenPlayers: Seq[Player]) extends MainActorMessage
   case class EatFoods(eatenFoods: Seq[Food], newFoods: Seq[Food]) extends MainActorMessage
@@ -25,6 +25,7 @@ class MainActor(context: ActorContext[MainActor.MainActorMessage])
 
   private var actorsList: List[ActorRef[PlayerActorMessage]] = Nil
   private var worldOpt: Option[World] = None
+  private var playerCounter: Int = 0
 
   override def onMessage(msg: MainActorMessage): Behavior[MainActorMessage] = msg match
     case Boot(width, height, numFoods, maxMass) =>
@@ -33,9 +34,9 @@ class MainActor(context: ActorContext[MainActor.MainActorMessage])
       actorsList = List.empty[ActorRef[PlayerActorMessage]]
       this
 
-    case Connect(replyTo) =>
+    case Connect(playerName, replyTo) =>
       worldOpt = worldOpt.map(world => {
-        val newPlayer = GameInitializer.initialPlayer("p" + (actorsList.length + 1).toString, world.width, world.height)
+        val newPlayer = GameInitializer.initialPlayer(playerName + "#" + playerCounter, world.width, world.height)
         val updatedWorld = world.updatePlayer(newPlayer)
 
         replyTo ! PlayerActor.Boot(context.self, actorsList, updatedWorld, newPlayer)
