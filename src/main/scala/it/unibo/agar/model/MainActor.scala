@@ -13,6 +13,7 @@ object MainActor:
   case class UpdatePlayer(player: Player) extends MainActorMessage
   case class EatPlayers(eatenPlayers: Seq[Player]) extends MainActorMessage
   case class EatFoods(eatenFoods: Seq[Food], newFoods: Seq[Food]) extends MainActorMessage
+  case class Disconnect(replyTo: ActorRef[PlayerActorMessage], playerId: String) extends MainActorMessage
 
   // Factory method per l'actor
   def apply(): Behavior[MainActorMessage] =
@@ -37,15 +38,15 @@ class MainActor(context: ActorContext[MainActor.MainActorMessage])
     case Connect(playerName, replyTo) =>
       worldOpt = worldOpt.map(world => {
         val newPlayer = GameInitializer.initialPlayer(playerName + "#" + playerCounter, world.width, world.height)
+        playerCounter+=1
         val updatedWorld = world.updatePlayer(newPlayer)
 
         replyTo ! PlayerActor.Boot(context.self, actorsList, updatedWorld, newPlayer)
 
         val updatedActors = replyTo :: actorsList
         actorsList.foreach(actor =>
-//          context.log.info(actor + "will receive: " + updatedActors.filterNot(a => a.equals(actor))
           actor ! SendActors(updatedActors.filterNot(a => a.equals(actor)))
-        ) // send to everyone except the new actor
+        )
         actorsList = updatedActors
 
         updatedWorld
@@ -62,4 +63,10 @@ class MainActor(context: ActorContext[MainActor.MainActorMessage])
 
     case EatPlayers(players) =>
       worldOpt = worldOpt.map(w => w.removePlayers(players))
+      this
+
+    case Disconnect(replyTo, playerId) =>
+      worldOpt = worldOpt.map(w => w.removePlayers(Seq(w.playerById(playerId).get)))//TODO: make get safe
+      actorsList = actorsList.filterNot(actor => actor.equals(replyTo))
+      actorsList.foreach(actor => actor ! SendActors(actorsList.filterNot(a => a.equals(actor))))
       this

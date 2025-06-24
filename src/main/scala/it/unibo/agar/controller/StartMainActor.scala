@@ -28,14 +28,14 @@ import it.unibo.agar.startupWithRole
   val width: Int = 1000
   val height: Int = 1000
   val numFoods: Int = 100
-  val maxMass: Int = 10000
+  val maxMass: Int = 4000
   val system = startupWithRole("main", port) {
     Behaviors.setup { context =>
       val singleton = ClusterSingleton(context.system)
 
       val mainActorProxy: ActorRef[MainActor.MainActorMessage] = singleton.init(
         SingletonActor(MainActor(), "MainActorSingleton")
-          .withSettings(ClusterSingletonSettings(context.system))
+          .withSettings(ClusterSingletonSettings(context.system).withRole("main"))
       )
 
       // mando Boot al singleton appena creato

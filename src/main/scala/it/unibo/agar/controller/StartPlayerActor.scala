@@ -26,7 +26,7 @@ import it.unibo.agar.startupWithRole
       val mainActorProxy: ActorRef[MainActorMessage] =
         singleton.init(
           SingletonActor(MainActor(), "MainActorSingleton")
-            .withSettings(ClusterSingletonSettings(context.system))
+            .withSettings(ClusterSingletonSettings(context.system).withRole("main"))
         )
 
       // Creiamo il player actor

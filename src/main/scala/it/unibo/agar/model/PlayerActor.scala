@@ -18,6 +18,8 @@ object PlayerActor:
   case class UpdatePlayer(player: Player) extends PlayerActorMessage
   case class EatPlayers(eatenPlayers: Seq[Player]) extends PlayerActorMessage
   case class EatFoods(eatenFoods: Seq[Food], newFoods: Seq[Food]) extends PlayerActorMessage
+  case class Terminate() extends PlayerActorMessage
+  
   case object Tick extends PlayerActorMessage
 
   def apply(): Behavior[PlayerActorMessage] =
@@ -45,7 +47,7 @@ class PlayerActor(context: ActorContext[PlayerActor.PlayerActorMessage])
 
       gameStateManagerOpt = Some(DistributedGameStateManager(world, player, mainActorOpt.get, actorsList))
 
-      localViewOpt = Some(new LocalView(gameStateManagerOpt.get, player.id))
+      localViewOpt = Some(new LocalView(gameStateManagerOpt.get, player.id, context.self))
       localViewOpt.get.open()
 
       implicit val ec: ExecutionContextExecutor = context.executionContext
@@ -65,7 +67,9 @@ class PlayerActor(context: ActorContext[PlayerActor.PlayerActorMessage])
         gameStateManagerOpt.map(gsm =>
           if (player.mass >= gsm.world.maxMass)
             context.log.info("WINNER: " + player.id)
-//            localViewOpt.foreach(_.close())
+            mainActorOpt.foreach(_ ! MainActor.Disconnect(context.self, player.id))
+            localViewOpt.foreach(_.close())
+            context.system.terminate()
             Behaviors.stopped
           else
             gsm.world = gsm.world.updatePlayer(player)
@@ -75,7 +79,9 @@ class PlayerActor(context: ActorContext[PlayerActor.PlayerActorMessage])
     case EatPlayers(players) =>
       //remove player from actors
       if (localPlayerIdOpt.isDefined && players.map(_.id).contains(localPlayerIdOpt.get)) {
+        mainActorOpt.foreach(_ ! MainActor.Disconnect(context.self, localPlayerIdOpt.get))
         localViewOpt.foreach(_.close())
+        context.system.terminate()
         Behaviors.stopped
       } else {
         gameStateManagerOpt.foreach(gsm => gsm.world = gsm.world.removePlayers(players))
@@ -94,11 +100,23 @@ class PlayerActor(context: ActorContext[PlayerActor.PlayerActorMessage])
           p.isDefined && (p.get.mass >= gsm.world.maxMass)
         }).get)
           context.log.info("WINNER: " + id)
+          mainActorOpt.foreach(_ ! MainActor.Disconnect(context.self, id))
+          localViewOpt.foreach(_.close())
+          context.system.terminate()
           return Behaviors.stopped
       gameStateManagerOpt.foreach(_.tick())
       localViewOpt.foreach(_.repaint())
       this
 
+    case Terminate() =>
+      if (localPlayerIdOpt.isDefined)
+        val id = localPlayerIdOpt.get
+        mainActorOpt.foreach(_ ! MainActor.Disconnect(context.self, id))
+        localViewOpt.foreach(_.close())
+        context.system.terminate()
+        return Behaviors.stopped
+      this
+      
     case null =>
       context.log.info(context.self.toString + ": Received anything else while in current state, ignoring")
       this

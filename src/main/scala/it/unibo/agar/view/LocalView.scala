@@ -1,14 +1,19 @@
 package it.unibo.agar.view
 
+import akka.actor.typed.ActorRef
 import it.unibo.agar.model.DistributedGameStateManager
+import it.unibo.agar.model.PlayerActor.{PlayerActorMessage, Terminate}
 
 import java.awt.Graphics2D
 import scala.swing.*
+import scala.swing.event.*
 
-class LocalView(manager: DistributedGameStateManager, playerId: String) extends MainFrame:
+class LocalView(manager: DistributedGameStateManager, playerId: String, playerActorRef: ActorRef[PlayerActorMessage]) extends MainFrame:
 
   title = s"Agar.io - Local View ($playerId)"
   preferredSize = new Dimension(400, 400)
+
+  override def closeOperation(): Unit = {} // Disabilita la chiusura automatica
 
   contents = new Panel:
     listenTo(keys, mouse.moves)
@@ -32,3 +37,10 @@ class LocalView(manager: DistributedGameStateManager, playerId: String) extends 
         manager.movePlayerDirection(dx, dy)
       repaint()
     }
+
+  listenTo(this)
+
+  reactions += {
+    case WindowClosing(_) =>
+      playerActorRef ! Terminate()
+  }
