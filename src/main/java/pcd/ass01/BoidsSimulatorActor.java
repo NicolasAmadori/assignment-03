@@ -7,6 +7,7 @@ import pcd.ass01.actors.BoidActor;
 import static pcd.ass01.actors.BoidExchangeProtocol.*;
 import static pcd.ass01.SimulatorExchangeProtocol.*;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -18,6 +19,7 @@ public class BoidsSimulatorActor extends AbstractActorWithStash {
     private static final int FRAMERATE = 25;
     private int framerate;
     private List<Boid> boids = new ArrayList<>();
+    private List<Boid> collectedBoids;
     private long t0;
     private List<ActorRef> boidsActors = new ArrayList<>();
 
@@ -33,25 +35,6 @@ public class BoidsSimulatorActor extends AbstractActorWithStash {
                 .build();
     }
 
-    public Receive receiverStart() {
-        return receiveBuilder()
-                .match(StartSimulationMsg.class, this::onStartSimulator)
-                .match(StopSimulatorMsg.class, this::onStopMsg)
-                .build();
-    }
-
-    public Receive receiverUpdate() {
-        return receiveBuilder()
-                .match(StartSimulationMsg.class, (msg) -> { this.stash(); })
-                .match(RunSimulationMsg.class, this::onRunSimulation)
-                .match(SendBoidMsg.class, this::onSendBoidMsg)
-                .match(PauseSimulationMsg.class, this::onPauseSimulator)
-                .match(ResumeSimulationMsg.class, this::onResumeSimulator)
-                .match(StopSimulationMsg.class, this::onStopSimulator)
-                .match(StopSimulatorMsg.class, this::onStopMsg)
-                .build();
-    }
-
     public void onBootMsg(BootSimulationMsg msg) {
         this.model = msg.model();
         view = Optional.empty();
@@ -62,25 +45,115 @@ public class BoidsSimulatorActor extends AbstractActorWithStash {
         this.getContext().become(receiverStart());
     }
 
-    public void onResumeSimulator(ResumeSimulationMsg msg) {
-        boidsActors.forEach(a -> a.tell(new ResumeMsg(), this.getSelf()));
-        this.getSelf().tell(new RunSimulationMsg(), this.getSelf());
-    }
-
-    public void onPauseSimulator(PauseSimulationMsg msg) {
-        boidsActors.forEach(a -> a.tell(new PauseMsg(), this.getSelf()));
+    public Receive receiverStart() {
+        return receiveBuilder()
+                .match(StartSimulationMsg.class, this::onStartSimulator)
+                .match(StopSimulatorMsg.class, this::onStopMsg)
+                .build();
     }
 
     public void onStartSimulator(StartSimulationMsg msg) {
         for (int i = 0; i < msg.nBoids(); i++) {
-            var boidActor = this.getContext().actorOf(Props.create(BoidActor.class), "B-" + i);
+            var boidActor = this.getContext().actorOf(Props.create(BoidActor.class).withDispatcher("my-blocking-dispatcher"), "B-" + i);
             boidsActors.add(boidActor);
             var boid = new Boid(model);
             boids.add(boid);
             boidActor.tell(new BootMsg(boidsActors, boid), this.getSelf());
         }
-        this.getContext().become(receiverUpdate());
+        this.getContext().become(receiverRun(System.currentTimeMillis()));
         this.getSelf().tell(new RunSimulationMsg(), this.getSelf());
+    }
+
+    private Receive receiverRun(long t0) {
+        this.t0 = t0;
+        return receiveBuilder()
+                .match(RunSimulationMsg.class, this::onRunSimulation)
+                .match(PauseSimulationMsg.class, this::onPauseSimulator)
+                .match(StopSimulationMsg.class, this::onStopSimulator)
+                .build();
+    }
+
+    private void onRunSimulation(RunSimulationMsg msg) {
+        this.collectedBoids = new ArrayList<>();
+        var boidsCopy = List.copyOf(this.boids);
+        for (var boidActor : boidsActors) {
+            boidActor.tell(new UpdateVelocityMsg(getSelf(), boidsCopy), getSelf());
+        }
+        getContext().become(receiverVelocities());
+    }
+
+    private Receive receiverVelocities() {
+        return receiveBuilder()
+                .match(VelocityUpdatedMsg.class, this::onVelocityUpdated)
+                .matchAny(o -> stash())
+                .build();
+    }
+
+    private void onVelocityUpdated(VelocityUpdatedMsg msg) {
+        collectedBoids.add(msg.boid());
+        if (collectedBoids.size() == boidsActors.size()) {
+            this.boids = List.copyOf(collectedBoids);
+            this.collectedBoids.clear();
+            for (var boidActor : boidsActors) {
+                boidActor.tell(new UpdatePositionMsg(), getSelf());
+            }
+            getContext().become(receiverPositions());
+        }
+    }
+
+    private Receive receiverPositions() {
+        return receiveBuilder()
+                .match(SendBoidMsg.class, this::onBoidUpdated)
+                .matchAny(o -> stash())
+                .build();
+    }
+
+    private void onBoidUpdated(SendBoidMsg msg) {
+        collectedBoids.add(msg.boid());
+        if (collectedBoids.size() == boidsActors.size()) {
+            this.boids = List.copyOf(collectedBoids);
+
+            if (view.isPresent()) {
+                view.get().update(framerate, this.boids);
+            }
+
+            var t1 = System.currentTimeMillis();
+            var dtElapsed = t1 - t0;
+            var frameratePeriod = 1000 / FRAMERATE;
+            long delay = Math.max(0, frameratePeriod - dtElapsed);
+            framerate = dtElapsed < frameratePeriod ? FRAMERATE : (int) (1000 / dtElapsed);
+
+            getContext().getSystem().getScheduler().scheduleOnce(
+                    Duration.ofMillis(delay),
+                    getSelf(),
+                    new RunSimulationMsg(),
+                    getContext().getDispatcher(),
+                    getSelf()
+            );
+
+            getContext().become(receiverRun(System.currentTimeMillis()));
+            unstashAll();
+        }
+    }
+
+    private void onPauseSimulator(PauseSimulationMsg msg) {
+        boidsActors.forEach(actor -> actor.tell(new PauseMsg(), getSelf()));
+        getContext().become(receiverResume());
+    }
+
+    private Receive receiverResume() {
+        return receiveBuilder()
+                .match(ResumeSimulationMsg.class, this::onResumeSimulator)
+                .match(StopSimulationMsg.class, this::onStopSimulator)
+                .matchAny(o -> stash())
+                .build();
+    }
+
+    private void onResumeSimulator(ResumeSimulationMsg msg) {
+        boidsActors.forEach(actor -> actor.tell(new ResumeMsg(), getSelf()));
+        unstashAll();
+        getContext().become(receiverRun(System.currentTimeMillis()));
+        getSelf().tell(new RunSimulationMsg(), getSelf());
     }
 
     public void onStopSimulator(StopSimulationMsg msg) {
@@ -89,41 +162,6 @@ public class BoidsSimulatorActor extends AbstractActorWithStash {
         boidsActors.clear();
         this.unstashAll();
         this.getContext().become(receiverStart());
-    }
-
-    private void onRunSimulation(RunSimulationMsg msg) {
-        t0 = System.currentTimeMillis();
-        var boidsCopy = List.copyOf(boids);
-        for (var boidActor : boidsActors) {
-            boidActor.tell(new UpdateMsg(this.getSelf(), boidsCopy), this.getSelf());
-        }
-        boids.clear();
-    }
-
-    private void onSendBoidMsg(SendBoidMsg msg) {
-       // log("SendBoidMsg received");
-        boids.add(msg.boid());
-
-        if (boids.size() == boidsActors.size()) {
-           // log("Received all the updated positions by the boid actors");
-            if (view.isPresent()) {
-                view.get().update(framerate, List.copyOf(boids));
-            }
-            var t1 = System.currentTimeMillis();
-            var dtElapsed = t1 - t0;
-            var frameratePeriod = 1000/FRAMERATE;
-            long delay = Math.max(0, frameratePeriod - dtElapsed);
-            framerate = dtElapsed < frameratePeriod ? FRAMERATE : (int) (1000/dtElapsed);
-
-            //Invia un messaggio a se stesso aspettando il delay del framerate
-            getContext().getSystem().scheduler().scheduleOnce(
-                    java.time.Duration.ofMillis(delay),
-                    getSelf(),
-                    new RunSimulationMsg(),
-                    getContext().getDispatcher(),
-                    getSelf()
-            );
-        }
     }
 
     private void onStopMsg(StopSimulatorMsg msg) {

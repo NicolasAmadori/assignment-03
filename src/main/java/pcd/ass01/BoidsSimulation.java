@@ -1,6 +1,8 @@
 package pcd.ass01;
 
 import akka.actor.*;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 
 import static pcd.ass01.SimulatorExchangeProtocol.*;
 
@@ -20,7 +22,8 @@ public class BoidsSimulation {
 	final static int SCREEN_HEIGHT = 800;
 
 	public static void main(String[] args) {
-		ActorSystem system = ActorSystem.create("boid-system");
+		Config config = ConfigFactory.load("application.conf");
+		ActorSystem system = ActorSystem.create("boid-system", config);
 
 		var model = new BoidsModel(
 				SEPARATION_WEIGHT, ALIGNMENT_WEIGHT, COHESION_WEIGHT,

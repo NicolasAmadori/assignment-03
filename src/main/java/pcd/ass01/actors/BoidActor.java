@@ -36,11 +36,24 @@ public class BoidActor extends AbstractActorWithStash {
      */
     public Receive receiverUpdate() {
         return receiveBuilder()
-                .match(UpdateMsg.class, this::onUpdate)
+//                .match(UpdateMsg.class, this::onUpdate)
+                .match(UpdateVelocityMsg.class, this::onUpdateVelocity)
+                .match(UpdatePositionMsg.class, this::onUpdatePosition)
                 .match(PauseMsg.class, this::onPauseMsg)
                 .match(ResumeMsg.class, (msg) -> { this.stash(); })
                 .match(StopMsg.class, this::onStopMsg)
                 .build();
+    }
+
+    private void onUpdateVelocity(UpdateVelocityMsg msg) {
+        this.simulatorActor = msg.replyTo();
+        boid.updateVelocity(msg.boids());
+        simulatorActor.tell(new VelocityUpdatedMsg(boid), getSelf());
+    }
+
+    private void onUpdatePosition(UpdatePositionMsg msg) {
+        boid.updatePos();
+        simulatorActor.tell(new SendBoidMsg(boid), getSelf());
     }
 
     private void onUpdate(UpdateMsg msg) {

@@ -10,6 +10,9 @@ public class BoidExchangeProtocol {
 
     public record BootMsg(List<ActorRef> actorBoids, Boid boid) {}
 
+    public record UpdateVelocityMsg(ActorRef replyTo, List<Boid> boids) {}
+    public record VelocityUpdatedMsg(Boid boid) {}
+    public record UpdatePositionMsg() {}
     public record UpdateMsg(ActorRef replyTo, List<Boid> boids) {}
     public record SendBoidMsg(Boid boid) {}
 
