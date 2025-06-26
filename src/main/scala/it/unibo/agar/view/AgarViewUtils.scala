@@ -22,16 +22,21 @@ object AgarViewUtils:
     case _ => Color.gray
 
   def drawWorld(
-      g: Graphics2D,
-      world: World,
-      offsetX: Double = 0,
-      offsetY: Double = 0
-  ): Unit =
+                 g: Graphics2D,
+                 world: World,
+                 offsetX: Double = 0,
+                 offsetY: Double = 0
+               ): Unit =
     def toScreenCenter(x: Double, y: Double, radius: Int): (Int, Int) =
       ((x - offsetX - radius).toInt, (y - offsetY - radius).toInt)
 
     def toScreenLabel(x: Double, y: Double): (Int, Int) =
       ((x - offsetX - playerLabelOffsetX).toInt, (y - offsetY - playerLabelOffsetY).toInt)
+
+    g.setColor(Color.black)
+    val borderX = (0 - offsetX).toInt
+    val borderY = (0 - offsetY).toInt
+    g.drawRect(borderX, borderY, world.width, world.height)
 
     // Draw foods
     g.setColor(Color.green)
@@ -54,3 +59,20 @@ object AgarViewUtils:
       g.setColor(playerBorderColor)
       val (labelX, labelY) = toScreenLabel(player.x, player.y)
       g.drawString(player.id + " (" + player.mass.toInt + ")", labelX, labelY)
+
+    val bounds = g.getClipBounds()
+    val leaderboardX = 30 // Margine dal bordo destro
+    val leaderboardY = 30 // Margine dal bordo superiore
+    val lineHeight = 15 // Spazio verticale tra le righe
+
+    g.setColor(Color.BLACK)
+    g.drawString("Leaderboard", leaderboardX, leaderboardY)
+
+    val topPlayers = world.players.sortBy(player => (-player.mass, player.id)).take(3)
+
+    topPlayers.zipWithIndex.foreach { case (player, index) =>
+      val rank = index + 1
+      val playerInfo = s"$rank. ${player.id} (${player.mass.toInt})"
+      val currentY = leaderboardY + (rank * lineHeight)
+      g.drawString(playerInfo, leaderboardX, currentY)
+    }

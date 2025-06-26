@@ -48,7 +48,8 @@ class PlayerActor(context: ActorContext[PlayerActor.PlayerActorMessage])
       gameStateManagerOpt = Some(DistributedGameStateManager(world, player, mainActorOpt.get, actorsList))
 
       localViewOpt = Some(new LocalView(gameStateManagerOpt.get, player.id, context.self))
-      localViewOpt.get.open()
+      println("before showing view")
+      localViewOpt.get.showView()
 
       implicit val ec: ExecutionContextExecutor = context.executionContext
       context.system.scheduler.scheduleAtFixedRate(30.millis, 30.millis) {
@@ -68,7 +69,7 @@ class PlayerActor(context: ActorContext[PlayerActor.PlayerActorMessage])
           if (player.mass >= gsm.world.maxMass)
             context.log.info("WINNER: " + player.id)
             mainActorOpt.foreach(_ ! MainActor.Disconnect(context.self, player.id))
-            localViewOpt.foreach(_.close())
+            localViewOpt.foreach(_.closeView())
             context.system.terminate()
             Behaviors.stopped
           else
@@ -80,7 +81,7 @@ class PlayerActor(context: ActorContext[PlayerActor.PlayerActorMessage])
       //remove player from actors
       if (localPlayerIdOpt.isDefined && players.map(_.id).contains(localPlayerIdOpt.get)) {
         mainActorOpt.foreach(_ ! MainActor.Disconnect(context.self, localPlayerIdOpt.get))
-        localViewOpt.foreach(_.close())
+        localViewOpt.foreach(_.closeView())
         context.system.terminate()
         Behaviors.stopped
       } else {
@@ -101,7 +102,7 @@ class PlayerActor(context: ActorContext[PlayerActor.PlayerActorMessage])
         }).get)
           context.log.info("WINNER: " + id)
           mainActorOpt.foreach(_ ! MainActor.Disconnect(context.self, id))
-          localViewOpt.foreach(_.close())
+          localViewOpt.foreach(_.closeView())
           context.system.terminate()
           return Behaviors.stopped
       gameStateManagerOpt.foreach(_.tick())
@@ -112,7 +113,7 @@ class PlayerActor(context: ActorContext[PlayerActor.PlayerActorMessage])
       if (localPlayerIdOpt.isDefined)
         val id = localPlayerIdOpt.get
         mainActorOpt.foreach(_ ! MainActor.Disconnect(context.self, id))
-        localViewOpt.foreach(_.close())
+        localViewOpt.foreach(_.closeView())
         context.system.terminate()
         return Behaviors.stopped
       this

@@ -5,12 +5,10 @@ import akka.actor.typed.Behavior
 import com.typesafe.config.ConfigFactory
 
 def startup[X](file: String = "agario", port: Int)(root: => Behavior[X]): ActorSystem[X] =
-  // Override the configuration of the port
   val config = ConfigFactory
     .parseString(s"""akka.remote.artery.canonical.port=$port""")
     .withFallback(ConfigFactory.load(file))
 
-  // Create an Akka system
   ActorSystem(root, "agario", config)
 
 def startupWithRole[X](role: String, port: Int)(root: => Behavior[X]): ActorSystem[X] =
@@ -21,5 +19,4 @@ def startupWithRole[X](role: String, port: Int)(root: => Behavior[X]): ActorSyst
       """)
     .withFallback(ConfigFactory.load("agario"))
 
-  // Create an Akka system
   ActorSystem(root, "agario", config)
