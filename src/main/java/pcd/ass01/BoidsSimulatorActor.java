@@ -60,12 +60,11 @@ public class BoidsSimulatorActor extends AbstractActorWithStash {
             boids.add(boid);
             boidActor.tell(new BootMsg(boidsActors, boid), this.getSelf());
         }
-        this.getContext().become(receiverRun(System.currentTimeMillis()));
+        this.getContext().become(receiverRun());
         this.getSelf().tell(new RunSimulationMsg(), this.getSelf());
     }
 
-    private Receive receiverRun(long t0) {
-        this.t0 = t0;
+    private Receive receiverRun() {
         return receiveBuilder()
                 .match(RunSimulationMsg.class, this::onRunSimulation)
                 .match(PauseSimulationMsg.class, this::onPauseSimulator)
@@ -74,6 +73,7 @@ public class BoidsSimulatorActor extends AbstractActorWithStash {
     }
 
     private void onRunSimulation(RunSimulationMsg msg) {
+        this.t0 = System.currentTimeMillis();
         this.collectedBoids = new ArrayList<>();
         var boidsCopy = List.copyOf(this.boids);
         for (var boidActor : boidsActors) {
@@ -92,7 +92,7 @@ public class BoidsSimulatorActor extends AbstractActorWithStash {
     private void onVelocityUpdated(VelocityUpdatedMsg msg) {
         collectedBoids.add(msg.boid());
         if (collectedBoids.size() == boidsActors.size()) {
-            this.boids = List.copyOf(collectedBoids);
+            this.boids = new ArrayList<>(collectedBoids);
             this.collectedBoids.clear();
             for (var boidActor : boidsActors) {
                 boidActor.tell(new UpdatePositionMsg(), getSelf());
@@ -111,7 +111,7 @@ public class BoidsSimulatorActor extends AbstractActorWithStash {
     private void onBoidUpdated(SendBoidMsg msg) {
         collectedBoids.add(msg.boid());
         if (collectedBoids.size() == boidsActors.size()) {
-            this.boids = List.copyOf(collectedBoids);
+            this.boids = new ArrayList<>(collectedBoids);
 
             if (view.isPresent()) {
                 view.get().update(framerate, this.boids);
@@ -131,13 +131,12 @@ public class BoidsSimulatorActor extends AbstractActorWithStash {
                     getSelf()
             );
 
-            getContext().become(receiverRun(System.currentTimeMillis()));
+            getContext().become(receiverRun());
             unstashAll();
         }
     }
 
     private void onPauseSimulator(PauseSimulationMsg msg) {
-        boidsActors.forEach(actor -> actor.tell(new PauseMsg(), getSelf()));
         getContext().become(receiverResume());
     }
 
@@ -150,9 +149,8 @@ public class BoidsSimulatorActor extends AbstractActorWithStash {
     }
 
     private void onResumeSimulator(ResumeSimulationMsg msg) {
-        boidsActors.forEach(actor -> actor.tell(new ResumeMsg(), getSelf()));
         unstashAll();
-        getContext().become(receiverRun(System.currentTimeMillis()));
+        getContext().become(receiverRun());
         getSelf().tell(new RunSimulationMsg(), getSelf());
     }
 

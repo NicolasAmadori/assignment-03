@@ -116,9 +116,11 @@ public class BoidsView implements ChangeListener, ActionListener {
 	}
 
 	public void update(int frameRate, List<Boid> boids) {
-		boidsPanel.setBoids(boids);
-		boidsPanel.setFrameRate(frameRate);
-		boidsPanel.repaint();
+		SwingUtilities.invokeLater(() -> {
+			boidsPanel.setBoids(List.copyOf(boids));
+			boidsPanel.setFrameRate(frameRate);
+			boidsPanel.repaint();
+		});
 	}
 
 	@Override

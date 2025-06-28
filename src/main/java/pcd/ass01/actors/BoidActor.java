@@ -10,7 +10,6 @@ public class BoidActor extends AbstractActorWithStash {
 
     private Boid boid;
     private ActorRef simulatorActor;
-    private Receive lastReceive;
 
     /**
      * Behaviour to wait for a BootMsg to create the boid.
@@ -26,8 +25,7 @@ public class BoidActor extends AbstractActorWithStash {
     private void onBootMsg(BootMsg msg) {
        // log("BootMsg received");
         this.boid = msg.boid();
-        lastReceive = receiverUpdate();
-        this.getContext().become(lastReceive);
+        this.getContext().become(receiverUpdate());
     }
 
     /**
@@ -36,11 +34,8 @@ public class BoidActor extends AbstractActorWithStash {
      */
     public Receive receiverUpdate() {
         return receiveBuilder()
-//                .match(UpdateMsg.class, this::onUpdate)
                 .match(UpdateVelocityMsg.class, this::onUpdateVelocity)
                 .match(UpdatePositionMsg.class, this::onUpdatePosition)
-                .match(PauseMsg.class, this::onPauseMsg)
-                .match(ResumeMsg.class, (msg) -> { this.stash(); })
                 .match(StopMsg.class, this::onStopMsg)
                 .build();
     }
@@ -54,37 +49,6 @@ public class BoidActor extends AbstractActorWithStash {
     private void onUpdatePosition(UpdatePositionMsg msg) {
         boid.updatePos();
         simulatorActor.tell(new SendBoidMsg(boid), getSelf());
-    }
-
-    private void onUpdate(UpdateMsg msg) {
-       // log("UpdateMsg received");
-        simulatorActor = msg.replyTo();
-        boid.update(msg.boids());
-        simulatorActor.tell(new SendBoidMsg(boid), this.getSelf());
-    }
-
-    private void onPauseMsg(PauseMsg msg) {
-       // log("PauseMsg received");
-        this.unstashAll();
-        this.getContext().become(receiverResume());
-    }
-
-    /**
-     * Behaviour to wait for a Resume message after pausing
-     * A stop message can be received anytime to stop the actor
-     */
-    public Receive receiverResume() {
-        return receiveBuilder()
-                .match(ResumeMsg.class, this::onResumeMsg)
-                .match(UpdateMsg.class, (msg) -> { this.stash(); })
-                .match(StopMsg.class, this::onStopMsg)
-                .build();
-    }
-
-    private void onResumeMsg(ResumeMsg msg) {
-       // log("ResumeMsg received");
-        this.unstashAll();
-        this.getContext().become(lastReceive);
     }
 
     private void onStopMsg(StopMsg msg) {
