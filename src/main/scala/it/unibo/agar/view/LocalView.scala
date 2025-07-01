@@ -61,3 +61,8 @@ class LocalView(manager: DistributedGameStateManager, playerId: String, playerAc
       close()
       dispose()
     })
+
+  def showMessage(msg: String): Unit =
+    SwingUtilities.invokeLater(() => {
+      javax.swing.JOptionPane.showMessageDialog(peer, msg, "Game Ended", javax.swing.JOptionPane.INFORMATION_MESSAGE)
+    })

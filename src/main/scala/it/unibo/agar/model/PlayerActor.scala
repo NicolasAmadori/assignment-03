@@ -38,17 +38,19 @@ class PlayerActor(context: ActorContext[PlayerActor.PlayerActorMessage])
 
   override def onMessage(msg: PlayerActorMessage): Behavior[PlayerActorMessage] = msg match
     case Boot(mainActor, actors, world, player) =>
+      println("1")
       mainActorOpt = Some(mainActor)
       actorsList = actors
       localPlayerIdOpt = Some(player.id)
-
+      println("2")
       mainActor ! MainActor.UpdatePlayer(player)
       actors.foreach(_ ! PlayerActor.UpdatePlayer(player))
-
+      println("3")
       gameStateManagerOpt = Some(DistributedGameStateManager(world, player, mainActorOpt.get, actorsList))
 
+      println("4")
       localViewOpt = Some(new LocalView(gameStateManagerOpt.get, player.id, context.self))
-      println("before showing view")
+      println("5")
       localViewOpt.get.showView()
 
       implicit val ec: ExecutionContextExecutor = context.executionContext
@@ -67,9 +69,8 @@ class PlayerActor(context: ActorContext[PlayerActor.PlayerActorMessage])
       else
         gameStateManagerOpt.map(gsm =>
           if (player.mass >= gsm.world.maxMass)
-            context.log.info("WINNER: " + player.id)
-            mainActorOpt.foreach(_ ! MainActor.Disconnect(context.self, player.id))
-            localViewOpt.foreach(_.closeView())
+            mainActorOpt.foreach(_ ! MainActor.Disconnect(context.self, localPlayerIdOpt.get))
+            localViewOpt.foreach(_.showMessage(player.id + "HAS WON THE GAME"))
             context.system.terminate()
             Behaviors.stopped
           else
@@ -100,9 +101,8 @@ class PlayerActor(context: ActorContext[PlayerActor.PlayerActorMessage])
           val p = gsm.world.playerById(id)
           p.isDefined && (p.get.mass >= gsm.world.maxMass)
         }).get)
-          context.log.info("WINNER: " + id)
           mainActorOpt.foreach(_ ! MainActor.Disconnect(context.self, id))
-          localViewOpt.foreach(_.closeView())
+          localViewOpt.foreach(_.showMessage("CONGRATULATIONS " + id + ", YOU WON!"))
           context.system.terminate()
           return Behaviors.stopped
       gameStateManagerOpt.foreach(_.tick())

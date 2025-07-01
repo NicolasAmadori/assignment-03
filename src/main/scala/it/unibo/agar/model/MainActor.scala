@@ -37,6 +37,7 @@ class MainActor(context: ActorContext[MainActor.MainActorMessage])
 
     case Connect(playerName, replyTo) =>
       worldOpt = worldOpt.map(world => {
+        println("CONNESSIONE 0")
         val newPlayer = GameInitializer.initialPlayer(playerName + "#" + playerCounter, world.width, world.height)
         playerCounter+=1
         val updatedWorld = world.updatePlayer(newPlayer)
@@ -66,7 +67,16 @@ class MainActor(context: ActorContext[MainActor.MainActorMessage])
       this
 
     case Disconnect(replyTo, playerId) =>
-      worldOpt = worldOpt.map(w => w.removePlayers(Seq(w.playerById(playerId).get)))//TODO: make get safe
+      worldOpt = worldOpt.map { w =>
+        w.playerById(playerId) match {
+          case Some(player) => w.removePlayers(Seq(player))
+          case None => {
+            println("NONE! PLAYERID=" + playerId)
+            println("PLAYER LIST -> " + w.players)
+            w
+          }
+        }
+      }
       actorsList = actorsList.filterNot(actor => actor.equals(replyTo))
       actorsList.foreach(actor => actor ! SendActors(actorsList.filterNot(a => a.equals(actor))))
       this
