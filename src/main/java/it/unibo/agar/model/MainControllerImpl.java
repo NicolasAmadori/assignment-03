@@ -31,9 +31,9 @@ public class MainControllerImpl implements MainController {
 
         Player newPlayer = GameInitializer.initialPlayer(playerName + "#" + playerCounter, world.getWidth(), world.getHeight());
         playerCounter++;
-        World updatedWorld = world.updatePlayer(newPlayer);
+        world = world.updatePlayer(newPlayer);
 
-        playerStub.boot(selfStub, playerControllerStubsList, updatedWorld, newPlayer);
+        playerStub.boot(selfStub, playerControllerStubsList, world, newPlayer);
 
         List<PlayerController> updatedPlayerControllerStubsList = playerControllerStubsList;
         updatedPlayerControllerStubsList.add(playerStub);
@@ -50,7 +50,6 @@ public class MainControllerImpl implements MainController {
         });
 
         playerControllerStubsList = updatedPlayerControllerStubsList;
-        world = updatedWorld;
     }
 
     @Override

@@ -2,11 +2,13 @@ package it.unibo.agar.view;
 
 import it.unibo.agar.model.GameStateManager;
 import it.unibo.agar.model.Player;
+import it.unibo.agar.model.PlayerController;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.rmi.RemoteException;
 import java.util.Optional;
 
 public class LocalView extends JFrame {
@@ -14,16 +16,19 @@ public class LocalView extends JFrame {
     private final GamePanel gamePanel;
     private final GameStateManager gameStateManager;
     private final String playerId;
+    private final PlayerController playerControllerRef;
 
-    public LocalView(GameStateManager gameStateManager, String playerId) {
+    public LocalView(GameStateManager gameStateManager, String playerId, PlayerController playerControllerRef) {
         this.gameStateManager = gameStateManager;
         this.playerId = playerId;
+        this.playerControllerRef = playerControllerRef;
 
         setTitle("Agar.io - Local View (" + playerId + ") (Java)");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // Dispose only this window
         setPreferredSize(new Dimension(600, 600));
 
         this.gamePanel = new GamePanel(gameStateManager, playerId);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // Dispose only this window
         add(this.gamePanel, BorderLayout.CENTER);
 
         setupMouseControls();
@@ -62,6 +67,16 @@ public class LocalView extends JFrame {
     public void repaintView() {
         if (gamePanel != null) {
             gamePanel.repaint();
+        }
+    }
+
+    @Override
+    public void dispose() {
+        super.dispose();
+        try {
+            playerControllerRef.terminate(); // Ensure playerControllerRef is terminated
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
         }
     }
 }
