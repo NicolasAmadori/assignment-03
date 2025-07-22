@@ -44,6 +44,7 @@ public class LocalView extends JFrame {
         setLocationRelativeTo(null); // Center on screen
         setFocusable(true);
         requestFocusInWindow();
+        setVisible(true);
     }
 
     private void setupMouseControls() {

@@ -1,11 +1,12 @@
 package it.unibo.agar.model;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class World {
+public class World implements Serializable {
     private final int width;
     private final int height;
     private final int maxMass;
@@ -54,6 +55,11 @@ public class World {
         List<Player> newPlayers = players.stream()
                 .map(p -> p.getId().equals(player.getId()) ? player : p)
                 .collect(Collectors.toList());
+        boolean exists = players.stream()
+                .anyMatch(p -> p.getId().equals(player.getId()));
+        if (!exists) {
+            newPlayers.add(player);
+        }
         return new World(width, height, maxMass, newPlayers, foods);
     }
 

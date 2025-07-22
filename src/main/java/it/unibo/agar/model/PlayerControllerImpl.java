@@ -22,7 +22,7 @@ public class PlayerControllerImpl implements PlayerController {
                 try {
                     selfStub.tick();
                 } catch (Exception e) {
-                    cancel();
+                    log("Tick error: " + e.getMessage());
                 }
             }
         }, 30, 30);
@@ -121,5 +121,9 @@ public class PlayerControllerImpl implements PlayerController {
         if (localView == null) {
             throw new RemoteException("localView is null");
         }
+    }
+
+    private void log(String msg) {
+        System.out.println("[ " + System.currentTimeMillis() + " ][ " + localPlayerId + " ] " + msg);
     }
 }

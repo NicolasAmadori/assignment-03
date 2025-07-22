@@ -29,6 +29,7 @@ public class MainControllerImpl implements MainController {
         }
 
         Player newPlayer = GameInitializer.initialPlayer(playerName + "#" + playerCounter++, world.getWidth(), world.getHeight());
+        log("Ricevuto connessione da " + newPlayer.getId());
         world = world.updatePlayer(newPlayer);
 
         playerStub.boot(selfStub, playerStubs, world, newPlayer);
@@ -72,5 +73,9 @@ public class MainControllerImpl implements MainController {
                     .toList()
             );
         }
+    }
+
+    private void log(String msg) {
+        System.out.println("[ " + System.currentTimeMillis() + " ][ MainController ] " + msg);
     }
 }
