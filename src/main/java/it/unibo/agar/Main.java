@@ -1,14 +1,5 @@
 package it.unibo.agar;
 
-import it.unibo.agar.model.*;
-import it.unibo.agar.view.GlobalView;
-import it.unibo.agar.view.LocalView;
-
-import javax.swing.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class Main {
 

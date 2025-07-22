@@ -3,19 +3,18 @@ package it.unibo.agar.model;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 public class MainControllerImpl implements MainController {
 
     private World world;
-    private List<PlayerController> playerControllerStubsList;
-    private int playerCounter = 0;
+    private List<PlayerController> playerStubs;
+    private static int playerCounter = 0;
     private MainController selfStub;
 
     public MainControllerImpl(int width, int height, int numFoods, int maxMass){
         world = new World(width, height, maxMass, List.of(), GameInitializer.initialFoods(numFoods, width, height));
-        playerControllerStubsList = new ArrayList<>();
+        playerStubs = new ArrayList<>();
     }
 
     @Override
@@ -29,27 +28,18 @@ public class MainControllerImpl implements MainController {
             throw new RemoteException();
         }
 
-        Player newPlayer = GameInitializer.initialPlayer(playerName + "#" + playerCounter, world.getWidth(), world.getHeight());
-        playerCounter++;
+        Player newPlayer = GameInitializer.initialPlayer(playerName + "#" + playerCounter++, world.getWidth(), world.getHeight());
         world = world.updatePlayer(newPlayer);
 
-        playerStub.boot(selfStub, playerControllerStubsList, world, newPlayer);
+        playerStub.boot(selfStub, playerStubs, world, newPlayer);
 
-        List<PlayerController> updatedPlayerControllerStubsList = playerControllerStubsList;
-        updatedPlayerControllerStubsList.add(playerStub);
-
-        playerControllerStubsList.forEach(p -> {
-            try {
-                p.sendActors(updatedPlayerControllerStubsList.stream()
-                        .filter(p2 -> !p2.equals(p))
-                        .toList()
-                );
-            } catch (RemoteException e) {
-                throw new RuntimeException(e);
-            }
-        });
-
-        playerControllerStubsList = updatedPlayerControllerStubsList;
+        playerStubs.add(playerStub);
+        for (PlayerController p : playerStubs) {
+            p.sendActors(playerStubs.stream()
+                    .filter(p2 -> !p2.equals(p) && !p2.equals(playerStub))
+                    .toList()
+            );
+        }
     }
 
     @Override
@@ -74,17 +64,13 @@ public class MainControllerImpl implements MainController {
             throw new RemoteException();
         }
         world = world.removePlayers(List.of(playerToRemove.get()));
-        playerControllerStubsList.remove(playerStub);
+        playerStubs.remove(playerStub);
 
-        playerControllerStubsList.forEach(p -> {
-            try {
-                p.sendActors(playerControllerStubsList.stream()
-                        .filter(p2 -> !p2.equals(p))
-                        .toList()
-                );
-            } catch (RemoteException e) {
-                throw new RuntimeException(e);
-            }
-        });
+        for (PlayerController p : playerStubs) {
+            p.sendActors(playerStubs.stream()
+                    .filter(p2 -> !p2.equals(p))
+                    .toList()
+            );
+        }
     }
 }

@@ -17,6 +17,7 @@ public class RunClientSide {
             var playerController = new PlayerControllerImpl();
 
             var playerControllerStub = (PlayerController) UnicastRemoteObject.exportObject(playerController, 0); //TODO: check port number correctness
+            playerController.setSelfStub(playerControllerStub);
 
             mainController.connect(PLAYER_NAME, playerControllerStub);
 

@@ -37,6 +37,16 @@ public class DistributedGameStateManager implements GameStateManager {
     }
 
     @Override
+    public void setWorld(World world) {
+        this.world = world;
+    }
+
+    public void setPlayerStubs(final List<PlayerController> playerStubs) {
+        this.playerStubs.clear();
+        this.playerStubs.addAll(playerStubs);
+    }
+
+    @Override
     public void movePlayerDirection(final double dx, final double dy) {
         deltaX = dx;
         deltaY = dy;

@@ -36,6 +36,8 @@ public class World {
         return foods;
     }
 
+    public int getMaxMass() { return maxMass; }
+
     public List<Player> getPlayersExcludingSelf(final Player player) {
         return players.stream()
                 .filter(p -> !p.getId().equals(player.getId()))

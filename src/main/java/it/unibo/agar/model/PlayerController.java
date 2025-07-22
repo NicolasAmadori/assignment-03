@@ -6,6 +6,8 @@ import java.util.List;
 
 public interface PlayerController extends Remote {
 
+    void setSelfStub(PlayerController selfStub) throws RemoteException;
+
     void boot(MainController mainController, List<PlayerController> playerControllerStubs, World world, Player player) throws RemoteException;
 
     void sendActors(List<PlayerController> playerControllerStubs) throws RemoteException;
