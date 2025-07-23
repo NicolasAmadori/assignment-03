@@ -20,8 +20,8 @@ public class AgarViewUtils {
     private static Color getPlayerColor(String id) {
         if (id != null && id.startsWith("p")) {
             try {
-                int index = Integer.parseInt(id.substring(1));
-                return PLAYER_PALETTE[Math.abs(index -1) % PLAYER_PALETTE.length]; // abs for safety, -1 as p1 is often index 0
+                int index = Integer.parseInt(id.split("#")[1]);
+                return PLAYER_PALETTE[Math.abs(index) % PLAYER_PALETTE.length]; // abs for safety, -1 as p1 is often index 0
             } catch (NumberFormatException e) {
                 // Fallback for non-numeric part after 'p'
                 return Color.GRAY;

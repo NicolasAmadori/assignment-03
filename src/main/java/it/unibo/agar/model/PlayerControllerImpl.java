@@ -93,6 +93,7 @@ public class PlayerControllerImpl implements PlayerController {
         }
         distributedGameStateManager.tick();
         localView.repaintView();
+        log("Mass: " + distributedGameStateManager.getWorld().getPlayerById(localPlayerId).get().getMass());
     }
 
     @Override
