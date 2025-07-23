@@ -23,7 +23,7 @@ public class LocalView extends JFrame {
 
         setTitle("Agar.io - Local View (" + playerId + ")");
         setPreferredSize(new Dimension(600, 600));
-        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
 
         gamePanel = new GamePanel(gameStateManager, playerId);
         add(gamePanel, BorderLayout.CENTER);

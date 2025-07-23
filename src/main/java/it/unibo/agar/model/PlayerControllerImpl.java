@@ -70,8 +70,7 @@ public class PlayerControllerImpl implements PlayerController {
     public void eatPlayer(List<Player> players) throws RemoteException {
         checkIfBooted();
         if (players.stream().map(Player::getId).toList().contains(localPlayerId)) {
-            mainControllerStub.disconnect(selfStub, localPlayerId);
-            localView.closeView();
+            this.terminate();
         } else {
             distributedGameStateManager.setWorld(distributedGameStateManager.getWorld().removePlayers(players));
         }
@@ -90,6 +89,9 @@ public class PlayerControllerImpl implements PlayerController {
         if (p.isPresent() && p.get().getMass() >= distributedGameStateManager.getWorld().getMaxMass()) {
             mainControllerStub.disconnect(selfStub, localPlayerId);
             localView.showMessage("CONGRATULATIONS " + localPlayerId + ", YOU WON!");
+            if (timer != null) {
+                timer.cancel();
+            }
         }
         distributedGameStateManager.tick();
         localView.repaintView();

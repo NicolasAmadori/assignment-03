@@ -109,7 +109,7 @@ public class DistributedGameStateManager implements GameStateManager {
 
 
         Player playerEatsPlayers = playersEaten.stream()
-                .reduce(playerOpt.get(), Player::grow, (p1, p2) -> p1);
+                .reduce(playerEatsFood, Player::grow, (p1, p2) -> p1);
 
         if (!playersEaten.isEmpty()) {
             try {
