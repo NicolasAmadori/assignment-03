@@ -48,7 +48,6 @@ class LocalView(manager: DistributedGameStateManager, playerId: String, playerAc
 
   def showView(): Unit =
     SwingUtilities.invokeLater(() => {
-      println("showing")
       centerOnScreen()
       open()
       peer.toFront()
@@ -57,7 +56,6 @@ class LocalView(manager: DistributedGameStateManager, playerId: String, playerAc
 
   def closeView(): Unit =
     SwingUtilities.invokeLater(() => {
-      println("closing")
       close()
       dispose()
     })

@@ -38,19 +38,14 @@ class PlayerActor(context: ActorContext[PlayerActor.PlayerActorMessage])
 
   override def onMessage(msg: PlayerActorMessage): Behavior[PlayerActorMessage] = msg match
     case Boot(mainActor, actors, world, player) =>
-      println("1")
       mainActorOpt = Some(mainActor)
       actorsList = actors
       localPlayerIdOpt = Some(player.id)
-      println("2")
       mainActor ! MainActor.UpdatePlayer(player)
       actors.foreach(_ ! PlayerActor.UpdatePlayer(player))
-      println("3")
       gameStateManagerOpt = Some(DistributedGameStateManager(world, player, mainActorOpt.get, actorsList))
 
-      println("4")
       localViewOpt = Some(new LocalView(gameStateManagerOpt.get, player.id, context.self))
-      println("5")
       localViewOpt.get.showView()
 
       implicit val ec: ExecutionContextExecutor = context.executionContext

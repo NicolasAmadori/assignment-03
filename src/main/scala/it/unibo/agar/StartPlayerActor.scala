@@ -34,7 +34,6 @@ import it.unibo.agar.startupWithRole
 
       // Connettiamo player a mainActor
       mainActorProxy ! MainActor.Connect(playerName, playerActor)
-      println("inviato connect al main")
 
       // Avviamo playerActor inviando Boot (con dati base, potresti anche recuperarli da MainActor)
       // Qui potresti anche mandare un messaggio per inizializzare il player localmente,
@@ -43,5 +42,3 @@ import it.unibo.agar.startupWithRole
       Behaviors.empty // solo attiviamo playerActor come child, la logica è dentro PlayerActor
     }
   }
-
-  println(s"Player actor $playerName started on port $port")
