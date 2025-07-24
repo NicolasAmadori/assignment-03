@@ -8,7 +8,7 @@ public class RunServerSide {
     static Integer WIDTH = 1000;
     static Integer HEIGHT = 1000;
     static Integer NUM_FOODS = 100;
-    static Integer MAX_MASS = 4000;
+    static Integer MAX_MASS = 8000;
 
     public static void main(String[] args) {
 

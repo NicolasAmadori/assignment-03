@@ -22,7 +22,7 @@ public class PlayerControllerImpl implements PlayerController {
                 try {
                     selfStub.tick();
                 } catch (Exception e) {
-                    log("Tick error: " + e.getMessage());
+                    log("Tick error: " + e);
                 }
             }
         }, 30, 30);
@@ -51,6 +51,7 @@ public class PlayerControllerImpl implements PlayerController {
 
     @Override
     public void sendActors(List<PlayerController> playerStubs) throws RemoteException {
+        log("Received player stubs list with size " + playerStubs.size());
         checkIfBooted();
         distributedGameStateManager.setPlayerStubs(playerStubs);
     }
@@ -59,8 +60,8 @@ public class PlayerControllerImpl implements PlayerController {
     public void updatePlayer(Player player) throws RemoteException {
         checkIfBooted();
         if (player.getMass() >= distributedGameStateManager.getWorld().getMaxMass()) {
-            mainControllerStub.disconnect(selfStub, localPlayerId);
-            localView.showMessage(player.getId() + "HAS WON THE GAME");
+            terminate(false);
+            localView.showMessage(player.getId() + " HAS WON THE GAME");
         } else {
             distributedGameStateManager.setWorld(distributedGameStateManager.getWorld().updatePlayer(player));
         }
@@ -70,7 +71,7 @@ public class PlayerControllerImpl implements PlayerController {
     public void eatPlayer(List<Player> players) throws RemoteException {
         checkIfBooted();
         if (players.stream().map(Player::getId).toList().contains(localPlayerId)) {
-            this.terminate();
+            this.terminate(true);
         } else {
             distributedGameStateManager.setWorld(distributedGameStateManager.getWorld().removePlayers(players));
         }
@@ -87,25 +88,25 @@ public class PlayerControllerImpl implements PlayerController {
         checkIfBooted();
         var p = distributedGameStateManager.getWorld().getPlayerById(localPlayerId);
         if (p.isPresent() && p.get().getMass() >= distributedGameStateManager.getWorld().getMaxMass()) {
-            mainControllerStub.disconnect(selfStub, localPlayerId);
+            terminate(false);
             localView.showMessage("CONGRATULATIONS " + localPlayerId + ", YOU WON!");
-            if (timer != null) {
-                timer.cancel();
-            }
+        } else {
+            distributedGameStateManager.tick();
+            localView.repaintView();
         }
-        distributedGameStateManager.tick();
-        localView.repaintView();
-        log("Mass: " + distributedGameStateManager.getWorld().getPlayerById(localPlayerId).get().getMass());
     }
 
     @Override
-    public void terminate() throws RemoteException {
+    public void terminate(boolean closingView) throws RemoteException {
         checkIfBooted();
         if (timer != null) {
             timer.cancel();
+            timer = null;
+            mainControllerStub.disconnect(selfStub, localPlayerId);
         }
-        mainControllerStub.disconnect(selfStub, localPlayerId);
-        localView.closeView();
+        if (closingView) {
+            localView.closeView();
+        }
     }
 
     private void checkIfBooted() throws RemoteException {

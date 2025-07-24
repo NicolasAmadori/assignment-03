@@ -32,7 +32,7 @@ public class LocalView extends JFrame {
             @Override
             public void windowClosing(WindowEvent e) {
                 try {
-                    playerControllerStub.terminate();
+                    playerControllerStub.terminate(true);
                 } catch (RemoteException ex) {
                     throw new RuntimeException(ex);
                 }

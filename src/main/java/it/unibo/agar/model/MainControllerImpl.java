@@ -36,10 +36,12 @@ public class MainControllerImpl implements MainController {
 
         playerStubs.add(playerStub);
         for (PlayerController p : playerStubs) {
-            p.sendActors(playerStubs.stream()
-                    .filter(p2 -> !p2.equals(p) && !p2.equals(playerStub))
-                    .toList()
-            );
+            if (!p.equals(playerStub)) {
+                p.sendActors(playerStubs.stream()
+                        .filter(p2 -> !p2.equals(p))
+                        .toList()
+                );
+            }
         }
     }
 
@@ -60,11 +62,12 @@ public class MainControllerImpl implements MainController {
 
     @Override
     public void disconnect(PlayerController playerStub, String playerId) throws RemoteException {
+        log("Ricevuto disconnect da " + playerId);
         Optional<Player> playerToRemove = world.getPlayerById(playerId);
-        if (playerToRemove.isEmpty()) {
-            throw new RemoteException();
+        if (playerToRemove.isPresent()) {
+            world = world.removePlayers(List.of(playerToRemove.get()));
         }
-        world = world.removePlayers(List.of(playerToRemove.get()));
+
         playerStubs.remove(playerStub);
 
         for (PlayerController p : playerStubs) {

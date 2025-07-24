@@ -20,5 +20,5 @@ public interface PlayerController extends Remote {
 
     void tick() throws RemoteException;
 
-    void terminate() throws RemoteException;
+    void terminate(boolean closingView) throws RemoteException;
 }
