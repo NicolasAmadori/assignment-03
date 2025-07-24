@@ -5,23 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8af32141-daee-4ec0-9979-9e8a83a3da06" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/codeStyles/Project.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/codeStyles/Project.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/scala_settings.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/it/unibo/agar/model/MainControllerImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unibo/agar/model/MainControllerImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/it/unibo/agar/model/PlayerControllerImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unibo/agar/model/PlayerControllerImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unibo/agar/model/RunServerSide.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unibo/agar/model/RunServerSide.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unibo/agar/view/LocalView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unibo/agar/view/LocalView.java" afterDir="false" />
     </list>
     <list id="23427904-f7a0-4157-9d8e-42f967eb1895" name="Changes by mricc" comment="">
       <change beforePath="$PROJECT_DIR$/src/main/java/it/unibo/agar/model/MainControllerImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unibo/agar/model/MainControllerImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unibo/agar/model/PlayerController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unibo/agar/model/PlayerController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/it/unibo/agar/model/PlayerControllerImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unibo/agar/model/PlayerControllerImpl.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -40,60 +30,52 @@
   <component name="LineStatusTrackerManager">
     <file path="$PROJECT_DIR$/src/main/java/it/unibo/agar/model/MainControllerImpl.java">
       <ranges>
-        <range start1="38" end1="42" start2="38" end2="44" changelist="8af32141-daee-4ec0-9979-9e8a83a3da06" />
-        <range start1="62" end1="62" start2="64" end2="65" changelist="8af32141-daee-4ec0-9979-9e8a83a3da06" />
-        <range start1="63" end1="68" start2="66" end2="69" changelist="23427904-f7a0-4157-9d8e-42f967eb1895" />
-        <range start1="69" end1="74" start2="70" end2="76" changelist="23427904-f7a0-4157-9d8e-42f967eb1895" />
+        <range start1="3" end1="3" start2="3" end2="4" changelist="23427904-f7a0-4157-9d8e-42f967eb1895" />
+        <range start1="70" end1="70" start2="71" end2="72" changelist="8af32141-daee-4ec0-9979-9e8a83a3da06" />
+        <range start1="78" end1="78" start2="80" end2="81" changelist="8af32141-daee-4ec0-9979-9e8a83a3da06" />
       </ranges>
     </file>
     <file path="$PROJECT_DIR$/src/main/java/it/unibo/agar/model/PlayerControllerImpl.java">
       <ranges>
-        <range start1="24" end1="25" start2="24" end2="25" changelist="8af32141-daee-4ec0-9979-9e8a83a3da06" />
-        <range start1="53" end1="53" start2="53" end2="54" changelist="8af32141-daee-4ec0-9979-9e8a83a3da06" />
-        <range start1="61" end1="63" start2="62" end2="64" changelist="23427904-f7a0-4157-9d8e-42f967eb1895" />
-        <range start1="72" end1="73" start2="73" end2="74" changelist="8af32141-daee-4ec0-9979-9e8a83a3da06" />
-        <range start1="89" end1="90" start2="90" end2="91" changelist="23427904-f7a0-4157-9d8e-42f967eb1895" />
-        <range start1="91" end1="94" start2="92" end2="95" changelist="23427904-f7a0-4157-9d8e-42f967eb1895" />
-        <range start1="95" end1="98" start2="96" end2="96" changelist="8af32141-daee-4ec0-9979-9e8a83a3da06" />
-        <range start1="101" end1="102" start2="99" end2="100" changelist="23427904-f7a0-4157-9d8e-42f967eb1895" />
-        <range start1="105" end1="105" start2="103" end2="105" changelist="23427904-f7a0-4157-9d8e-42f967eb1895" />
-        <range start1="106" end1="108" start2="106" end2="109" changelist="23427904-f7a0-4157-9d8e-42f967eb1895" />
+        <range start1="3" end1="3" start2="3" end2="4" changelist="23427904-f7a0-4157-9d8e-42f967eb1895" />
+        <range start1="22" end1="23" start2="23" end2="24" changelist="8af32141-daee-4ec0-9979-9e8a83a3da06" />
+        <range start1="108" end1="108" start2="109" end2="110" changelist="23427904-f7a0-4157-9d8e-42f967eb1895" />
       </ranges>
     </file>
   </component>
   <component name="ProjectCodeStyleSettingsMigration">
     <option name="version" value="2" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "customColor": "",
-  "associatedIndex": 2
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 2
+}</component>
   <component name="ProjectId" id="30JTa7pVW54Sma1k8KOaKl6q3lQ" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Gradle.Build assignment-03.executor": "Run",
-    "Gradle.assignment-03 [:it.unibo.agar.model.RunClientSide.main()].executor": "Run",
-    "Gradle.assignment-03 [:it.unibo.agar.model.RunServerSide.main()].executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.go.formatter.settings.were.checked": "true",
-    "RunOnceActivity.go.migrated.go.modules.settings": "true",
-    "git-widget-placeholder": "part-3b",
-    "go.import.settings.migrated": "true",
-    "kotlin-language-version-configured": "true",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "reference.settingsdialog.project.gradle",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Gradle.Build assignment-03.executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.assignment-03 [:it.unibo.agar.model.RunClientSide.main()].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.assignment-03 [:it.unibo.agar.model.RunServerSide.main()].executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;part-3b&quot;,
+    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settingsdialog.project.gradle&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager" selected="Application.RunClientSide">
     <configuration name="RunClientSide" type="Application" factoryName="Application" singleton="false">
       <option name="MAIN_CLASS_NAME" value="it.unibo.agar.model.RunClientSide" />
@@ -114,7 +96,7 @@
     <configuration default="true" type="GoApplicationRunConfiguration" factoryName="Go Application">
       <working_directory value="$PROJECT_DIR$" />
       <go_parameters value="-i" />
-      <kind />
+      <kind value="FILE" />
       <directory value="$PROJECT_DIR$" />
       <filePath value="$PROJECT_DIR$" />
       <method v="2" />
@@ -140,7 +122,8 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1753344737899</updated>
-      <workItem from="1753344739911" duration="3364000" />
+      <workItem from="1753344739911" duration="3690000" />
+      <workItem from="1753360521608" duration="2304000" />
     </task>
     <servers />
   </component>

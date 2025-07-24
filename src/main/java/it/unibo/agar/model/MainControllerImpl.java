@@ -1,6 +1,7 @@
 package it.unibo.agar.model;
 
 import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -68,6 +69,7 @@ public class MainControllerImpl implements MainController {
             world = world.removePlayers(List.of(playerToRemove.get()));
         }
 
+        log("list size before removing " + playerId + " " + playerStubs.size());
         playerStubs.remove(playerStub);
 
         for (PlayerController p : playerStubs) {
@@ -76,6 +78,7 @@ public class MainControllerImpl implements MainController {
                     .toList()
             );
         }
+        log("list size after removing " + playerId + " " + playerStubs.size());
     }
 
     private void log(String msg) {

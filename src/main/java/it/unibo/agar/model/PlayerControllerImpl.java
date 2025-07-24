@@ -1,6 +1,7 @@
 package it.unibo.agar.model;
 
 import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 import it.unibo.agar.view.LocalView;
 
@@ -20,7 +21,7 @@ public class PlayerControllerImpl implements PlayerController {
             @Override
             public void run() {
                 try {
-                    selfStub.tick();
+                    tick();
                 } catch (Exception e) {
                     log("Tick error: " + e);
                 }
@@ -106,6 +107,7 @@ public class PlayerControllerImpl implements PlayerController {
         }
         if (closingView) {
             localView.closeView();
+            System.exit(0);
         }
     }
 
