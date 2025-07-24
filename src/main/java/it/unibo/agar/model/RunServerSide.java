@@ -21,7 +21,6 @@ public class RunServerSide {
             var registry = LocateRegistry.getRegistry();
             registry.rebind("mainController", mainControllerStub);
 
-            log("MainController object registered.");
         } catch (Exception e) {
             log("Server exception: " + e);
             e.printStackTrace();
@@ -29,6 +28,6 @@ public class RunServerSide {
     }
 
     private static void log(String msg) {
-        System.out.println("[ " + System.currentTimeMillis() + " ][ Main ] " + msg);
+        System.out.println("[ " + System.currentTimeMillis() + " ][ Server Main ] " + msg);
     }
 }

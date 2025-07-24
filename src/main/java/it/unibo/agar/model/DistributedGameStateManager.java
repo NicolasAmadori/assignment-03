@@ -2,6 +2,8 @@ package it.unibo.agar.model;
 
 import java.rmi.RemoteException;
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 
 public class DistributedGameStateManager implements GameStateManager {
     private static final double PLAYER_SPEED = 2.0;
@@ -10,7 +12,7 @@ public class DistributedGameStateManager implements GameStateManager {
     private World world;
     private final Player initialPlayer;
     private final MainController mainController;
-    private final List<PlayerController> playerStubs;
+    private List<PlayerController> playerStubs;
     private final double speed;
     private double deltaX = 0.0;
     private double deltaY = 0.0;
@@ -20,7 +22,7 @@ public class DistributedGameStateManager implements GameStateManager {
         this.world = initialWorld;
         this.initialPlayer = initialPlayer;
         this.mainController = mainController;
-        this.playerStubs = playerStubs;
+        this.playerStubs = new CopyOnWriteArrayList<>(playerStubs);
         this.speed = speed;
 
         playerId = initialPlayer.getId();
@@ -42,8 +44,7 @@ public class DistributedGameStateManager implements GameStateManager {
     }
 
     public void setPlayerStubs(final List<PlayerController> playerStubs) {
-        this.playerStubs.clear();
-        this.playerStubs.addAll(playerStubs);
+        this.playerStubs = Collections.unmodifiableList(playerStubs);
     }
 
     @Override
@@ -107,20 +108,15 @@ public class DistributedGameStateManager implements GameStateManager {
                 .filter(player -> EatingManager.canEatPlayer(playerEatsFood, player))
                 .toList();
 
-
         Player playerEatsPlayers = playersEaten.stream()
                 .reduce(playerEatsFood, Player::grow, (p1, p2) -> p1);
 
         if (!playersEaten.isEmpty()) {
             try {
                 mainController.eatPlayers(playersEaten);
-                playerStubs.forEach(p -> {
-                    try {
-                        p.eatPlayer(playersEaten);
-                    } catch (RemoteException e) {
-                        throw new RuntimeException(e);
-                    }
-                });
+                for (PlayerController p : playerStubs) {
+                    p.eatPlayer(playersEaten);
+                }
             } catch (RemoteException e) {
                 throw new RuntimeException(e);
             }
@@ -128,13 +124,9 @@ public class DistributedGameStateManager implements GameStateManager {
 
         try {
             mainController.updatePlayer(playerEatsPlayers);
-            playerStubs.forEach(p -> {
-                try {
-                    p.updatePlayer(playerEatsPlayers);
-                } catch (RemoteException e) {
-                    throw new RuntimeException(e);
-                }
-            });
+            for (PlayerController p : playerStubs) {
+                p.updatePlayer(playerEatsPlayers);
+            }
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }

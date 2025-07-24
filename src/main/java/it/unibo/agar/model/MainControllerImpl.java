@@ -1,7 +1,6 @@
 package it.unibo.agar.model;
 
 import java.rmi.RemoteException;
-import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -24,13 +23,12 @@ public class MainControllerImpl implements MainController {
     }
 
     @Override
-    public void connect(String playerName, PlayerController playerStub) throws RemoteException {
+    public synchronized void connect(String playerName, PlayerController playerStub) throws RemoteException {
         if (selfStub == null) {
             throw new RemoteException();
         }
 
         Player newPlayer = GameInitializer.initialPlayer(playerName + "#" + playerCounter++, world.getWidth(), world.getHeight());
-        log("Ricevuto connessione da " + newPlayer.getId());
         world = world.updatePlayer(newPlayer);
 
         playerStub.boot(selfStub, playerStubs, world, newPlayer);
@@ -38,7 +36,7 @@ public class MainControllerImpl implements MainController {
         playerStubs.add(playerStub);
         for (PlayerController p : playerStubs) {
             if (!p.equals(playerStub)) {
-                p.sendActors(playerStubs.stream()
+                p.sendPlayerStubs(playerStubs.stream()
                         .filter(p2 -> !p2.equals(p))
                         .toList()
                 );
@@ -48,6 +46,7 @@ public class MainControllerImpl implements MainController {
 
     @Override
     public void updatePlayer(Player player) throws RemoteException {
+        log("player updated: " + player.getId());
         world = world.updatePlayer(player);
     }
 
@@ -62,23 +61,23 @@ public class MainControllerImpl implements MainController {
     }
 
     @Override
-    public void disconnect(PlayerController playerStub, String playerId) throws RemoteException {
-        log("Ricevuto disconnect da " + playerId);
+    public synchronized void disconnect(PlayerController playerStub, String playerId) throws RemoteException {
         Optional<Player> playerToRemove = world.getPlayerById(playerId);
         if (playerToRemove.isPresent()) {
             world = world.removePlayers(List.of(playerToRemove.get()));
+        } else {
+            log("Player " + playerId + " not found!!!");
         }
 
-        log("list size before removing " + playerId + " " + playerStubs.size());
         playerStubs.remove(playerStub);
 
         for (PlayerController p : playerStubs) {
-            p.sendActors(playerStubs.stream()
+            p.sendPlayerStubs(playerStubs.stream()
                     .filter(p2 -> !p2.equals(p))
                     .toList()
             );
         }
-        log("list size after removing " + playerId + " " + playerStubs.size());
+        log("Player " + playerId + " disconnecting: " + world.getPlayers().stream().map(AbstractEntity::getId).toList());
     }
 
     private void log(String msg) {

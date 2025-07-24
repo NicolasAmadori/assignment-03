@@ -1,11 +1,10 @@
 package it.unibo.agar.view;
 
-import it.unibo.agar.model.Entity;
-import it.unibo.agar.model.Food;
-import it.unibo.agar.model.Player;
-import it.unibo.agar.model.World;
+import it.unibo.agar.model.*;
 
 import java.awt.*;
+import java.util.Comparator;
+import java.util.stream.IntStream;
 
 public class AgarViewUtils {
 
@@ -60,7 +59,27 @@ public class AgarViewUtils {
             // Adjust label position to be relative to the player's actual center on screen
             int labelX = positioning.x - PLAYER_LABEL_OFFSET_X;
             int labelY = positioning.y - PLAYER_LABEL_OFFSET_Y;
-            g.drawString(player.getId(), labelX, labelY);
+            g.drawString(player.getId() + " (" + player.getMass() + ")", labelX, labelY);
         }
+        int leaderboardX = 30; // Margine dal bordo destro
+        int leaderboardY = 30; // Margine dal bordo superiore
+        int lineHeight = 15; // Spazio verticale tra le righe
+
+        g.setColor(Color.BLACK);
+        g.drawString("Leaderboard", leaderboardX, leaderboardY);
+
+        var topPlayers = world.getPlayers().stream()
+                .sorted(Comparator.comparingDouble(Player::getMass).reversed())
+                .limit(3)
+                .toList();
+
+        IntStream.range(0, topPlayers.size())
+                .forEach(i -> {
+                    int rank = i + 1;
+                    AbstractEntity player = topPlayers.get(i);
+                    String playerInfo = rank + ". " + player.getId() + " (" + player.getMass() + ")";
+                    int currentY = leaderboardY + (rank * lineHeight);
+                    g.drawString(playerInfo, leaderboardX, currentY);
+                });
     }
 }

@@ -3,6 +3,8 @@ package it.unibo.agar.model;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
+import java.util.concurrent.Callable;
+
 import it.unibo.agar.view.LocalView;
 
 public class PlayerControllerImpl implements PlayerController {
@@ -14,6 +16,7 @@ public class PlayerControllerImpl implements PlayerController {
     private LocalView localView;
     private PlayerController selfStub;
     private Timer timer;
+    private Runnable termination = null;
 
     public void startTicking() {
         timer = new Timer();
@@ -23,7 +26,7 @@ public class PlayerControllerImpl implements PlayerController {
                 try {
                     tick();
                 } catch (Exception e) {
-                    log("Tick error: " + e);
+                    e.printStackTrace();
                 }
             }
         }, 30, 30);
@@ -51,8 +54,7 @@ public class PlayerControllerImpl implements PlayerController {
     }
 
     @Override
-    public void sendActors(List<PlayerController> playerStubs) throws RemoteException {
-        log("Received player stubs list with size " + playerStubs.size());
+    public void sendPlayerStubs(List<PlayerController> playerStubs) throws RemoteException {
         checkIfBooted();
         distributedGameStateManager.setPlayerStubs(playerStubs);
     }
@@ -61,7 +63,13 @@ public class PlayerControllerImpl implements PlayerController {
     public void updatePlayer(Player player) throws RemoteException {
         checkIfBooted();
         if (player.getMass() >= distributedGameStateManager.getWorld().getMaxMass()) {
-            terminate(false);
+            termination = () -> {
+                try {
+                    terminate(false);
+                } catch (RemoteException e) {
+                    throw new RuntimeException(e);
+                }
+            };
             localView.showMessage(player.getId() + " HAS WON THE GAME");
         } else {
             distributedGameStateManager.setWorld(distributedGameStateManager.getWorld().updatePlayer(player));
@@ -72,7 +80,13 @@ public class PlayerControllerImpl implements PlayerController {
     public void eatPlayer(List<Player> players) throws RemoteException {
         checkIfBooted();
         if (players.stream().map(Player::getId).toList().contains(localPlayerId)) {
-            this.terminate(true);
+            termination = () -> {
+                try {
+                    terminate(true);
+                } catch (RemoteException e) {
+                    throw new RuntimeException(e);
+                }
+            };
         } else {
             distributedGameStateManager.setWorld(distributedGameStateManager.getWorld().removePlayers(players));
         }
@@ -86,6 +100,10 @@ public class PlayerControllerImpl implements PlayerController {
 
     @Override
     public void tick() throws RemoteException {
+        if (termination != null) {
+            termination.run();
+            return;
+        }
         checkIfBooted();
         var p = distributedGameStateManager.getWorld().getPlayerById(localPlayerId);
         if (p.isPresent() && p.get().getMass() >= distributedGameStateManager.getWorld().getMaxMass()) {
