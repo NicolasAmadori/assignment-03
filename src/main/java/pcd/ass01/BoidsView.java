@@ -143,7 +143,6 @@ public class BoidsView implements ChangeListener, ActionListener {
 			if (startStopButton.getText() == START) {
 				boidsCountField.setEnabled(false);
 				getNumBoids().ifPresent(val -> {
-					System.out.println("Boids count: " + val);
 					simulator.tell(new StartSimulationMsg(val), ActorRef.noSender());
 					startStopButton.setText(STOP);
 					pauseResumeButton.setEnabled(true);

@@ -23,7 +23,6 @@ public class BoidActor extends AbstractActorWithStash {
     }
 
     private void onBootMsg(BootMsg msg) {
-       // log("BootMsg received");
         this.boid = msg.boid();
         this.getContext().become(receiverUpdate());
     }
@@ -52,7 +51,6 @@ public class BoidActor extends AbstractActorWithStash {
     }
 
     private void onStopMsg(StopMsg msg) {
-       // log("StopMsg received");
         this.getContext().stop(this.getSelf());
     }
 

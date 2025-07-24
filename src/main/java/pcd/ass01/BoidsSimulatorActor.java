@@ -163,7 +163,6 @@ public class BoidsSimulatorActor extends AbstractActorWithStash {
     }
 
     private void onStopMsg(StopSimulatorMsg msg) {
-       // log("StopSimulatorMsg received");
         this.getContext().stop(this.getSelf());
     }
 
