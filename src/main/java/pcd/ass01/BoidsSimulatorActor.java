@@ -58,7 +58,7 @@ public class BoidsSimulatorActor extends AbstractActorWithStash {
             boidsActors.add(boidActor);
             var boid = new Boid(model);
             boids.add(boid);
-            boidActor.tell(new BootMsg(boidsActors, boid), this.getSelf());
+            boidActor.tell(new BootMsg(boid), this.getSelf());
         }
         this.getContext().become(receiverRun());
         this.getSelf().tell(new RunSimulationMsg(), this.getSelf());
