@@ -1,5 +1,8 @@
 package it.unibo.agar.model;
 
+import it.unibo.agar.controller.MainController;
+import it.unibo.agar.controller.PlayerController;
+
 import java.rmi.RemoteException;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;

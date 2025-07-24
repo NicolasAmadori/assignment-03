@@ -1,5 +1,6 @@
 package it.unibo.agar.view;
 
+import it.unibo.agar.controller.PlayerController;
 import it.unibo.agar.model.*;
 
 import javax.swing.*;

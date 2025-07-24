@@ -1,4 +1,7 @@
-package it.unibo.agar.model;
+package it.unibo.agar;
+
+import it.unibo.agar.controller.MainController;
+import it.unibo.agar.controller.MainControllerImpl;
 
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;

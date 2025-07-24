@@ -1,10 +1,12 @@
-package it.unibo.agar.model;
+package it.unibo.agar.controller;
 
 import java.rmi.RemoteException;
-import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
-import java.util.concurrent.Callable;
 
+import it.unibo.agar.model.DistributedGameStateManager;
+import it.unibo.agar.model.Food;
+import it.unibo.agar.model.Player;
+import it.unibo.agar.model.World;
 import it.unibo.agar.view.LocalView;
 
 public class PlayerControllerImpl implements PlayerController {

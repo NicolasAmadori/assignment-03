@@ -6,19 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="8af32141-daee-4ec0-9979-9e8a83a3da06" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unibo/agar/model/DistributedGameStateManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unibo/agar/model/DistributedGameStateManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unibo/agar/model/MainControllerImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unibo/agar/model/MainControllerImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unibo/agar/model/PlayerControllerImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unibo/agar/model/PlayerControllerImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unibo/agar/model/RunServerSide.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unibo/agar/model/RunServerSide.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unibo/agar/view/AgarViewUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unibo/agar/view/AgarViewUtils.java" afterDir="false" />
     </list>
-    <list id="23427904-f7a0-4157-9d8e-42f967eb1895" name="Changes by mricc" comment="">
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unibo/agar/model/DistributedGameStateManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unibo/agar/model/DistributedGameStateManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unibo/agar/model/MainControllerImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unibo/agar/model/MainControllerImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unibo/agar/model/PlayerController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unibo/agar/model/PlayerController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unibo/agar/model/PlayerControllerImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unibo/agar/model/PlayerControllerImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unibo/agar/view/AgarViewUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unibo/agar/view/AgarViewUtils.java" afterDir="false" />
-    </list>
+    <list id="23427904-f7a0-4157-9d8e-42f967eb1895" name="Changes by mricc" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -31,52 +20,6 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
-  </component>
-  <component name="LineStatusTrackerManager">
-    <file path="$PROJECT_DIR$/src/main/java/it/unibo/agar/view/AgarViewUtils.java">
-      <ranges>
-        <range start1="2" end1="6" start2="2" end2="3" changelist="8af32141-daee-4ec0-9979-9e8a83a3da06" />
-        <range start1="8" end1="8" start2="5" end2="7" changelist="8af32141-daee-4ec0-9979-9e8a83a3da06" />
-        <range start1="62" end1="63" start2="61" end2="62" changelist="23427904-f7a0-4157-9d8e-42f967eb1895" />
-        <range start1="64" end1="64" start2="63" end2="83" changelist="23427904-f7a0-4157-9d8e-42f967eb1895" />
-      </ranges>
-    </file>
-    <file path="$PROJECT_DIR$/src/main/java/it/unibo/agar/model/MainControllerImpl.java">
-      <ranges>
-        <range start1="3" end1="4" start2="3" end2="3" changelist="23427904-f7a0-4157-9d8e-42f967eb1895" />
-        <range start1="26" end1="27" start2="25" end2="26" changelist="23427904-f7a0-4157-9d8e-42f967eb1895" />
-        <range start1="32" end1="33" start2="31" end2="31" changelist="8af32141-daee-4ec0-9979-9e8a83a3da06" />
-        <range start1="40" end1="41" start2="38" end2="39" changelist="23427904-f7a0-4157-9d8e-42f967eb1895" />
-        <range start1="50" end1="50" start2="48" end2="49" changelist="8af32141-daee-4ec0-9979-9e8a83a3da06" />
-        <range start1="64" end1="66" start2="63" end2="64" changelist="8af32141-daee-4ec0-9979-9e8a83a3da06" />
-        <range start1="69" end1="69" start2="67" end2="69" changelist="8af32141-daee-4ec0-9979-9e8a83a3da06" />
-        <range start1="71" end1="72" start2="71" end2="71" changelist="8af32141-daee-4ec0-9979-9e8a83a3da06" />
-        <range start1="75" end1="76" start2="74" end2="75" changelist="23427904-f7a0-4157-9d8e-42f967eb1895" />
-        <range start1="80" end1="81" start2="79" end2="80" changelist="8af32141-daee-4ec0-9979-9e8a83a3da06" />
-      </ranges>
-    </file>
-    <file path="$PROJECT_DIR$/src/main/java/it/unibo/agar/model/PlayerControllerImpl.java">
-      <ranges>
-        <range start1="5" end1="5" start2="5" end2="7" changelist="23427904-f7a0-4157-9d8e-42f967eb1895" />
-        <range start1="16" end1="16" start2="18" end2="19" changelist="23427904-f7a0-4157-9d8e-42f967eb1895" />
-        <range start1="25" end1="26" start2="28" end2="29" changelist="8af32141-daee-4ec0-9979-9e8a83a3da06" />
-        <range start1="53" end1="55" start2="56" end2="57" changelist="23427904-f7a0-4157-9d8e-42f967eb1895" />
-        <range start1="63" end1="64" start2="65" end2="72" changelist="23427904-f7a0-4157-9d8e-42f967eb1895" />
-        <range start1="74" end1="75" start2="82" end2="89" changelist="23427904-f7a0-4157-9d8e-42f967eb1895" />
-        <range start1="88" end1="88" start2="102" end2="106" changelist="8af32141-daee-4ec0-9979-9e8a83a3da06" />
-      </ranges>
-    </file>
-    <file path="$PROJECT_DIR$/src/main/java/it/unibo/agar/model/DistributedGameStateManager.java">
-      <ranges>
-        <range start1="4" end1="4" start2="4" end2="6" changelist="23427904-f7a0-4157-9d8e-42f967eb1895" />
-        <range start1="12" end1="13" start2="14" end2="15" changelist="8af32141-daee-4ec0-9979-9e8a83a3da06" />
-        <range start1="22" end1="23" start2="24" end2="25" changelist="23427904-f7a0-4157-9d8e-42f967eb1895" />
-        <range start1="44" end1="46" start2="46" end2="47" changelist="8af32141-daee-4ec0-9979-9e8a83a3da06" />
-        <range start1="109" end1="110" start2="110" end2="110" changelist="8af32141-daee-4ec0-9979-9e8a83a3da06" />
-        <range start1="116" end1="123" start2="116" end2="119" changelist="23427904-f7a0-4157-9d8e-42f967eb1895" />
-        <range start1="130" end1="137" start2="126" end2="129" changelist="8af32141-daee-4ec0-9979-9e8a83a3da06" />
-      </ranges>
-    </file>
   </component>
   <component name="ProjectCodeStyleSettingsMigration">
     <option name="version" value="2" />
@@ -113,7 +56,7 @@
 }</component>
   <component name="RunManager" selected="Application.RunClientSide">
     <configuration name="RunClientSide" type="Application" factoryName="Application" singleton="false">
-      <option name="MAIN_CLASS_NAME" value="it.unibo.agar.model.RunClientSide" />
+      <option name="MAIN_CLASS_NAME" value="it.unibo.agar.RunClientSide" />
       <module name="pcd-assignment-2025-optional.main" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -122,7 +65,7 @@
     <configuration name="RunServerSide" type="Application" factoryName="Application">
       <option name="ALTERNATIVE_JRE_PATH" value="temurin-21" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
-      <option name="MAIN_CLASS_NAME" value="it.unibo.agar.model.RunServerSide" />
+      <option name="MAIN_CLASS_NAME" value="it.unibo.agar.RunServerSide" />
       <module name="pcd-assignment-2025-optional.main" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -158,7 +101,7 @@
       <option name="presentableId" value="Default" />
       <updated>1753344737899</updated>
       <workItem from="1753344739911" duration="3690000" />
-      <workItem from="1753360521608" duration="9988000" />
+      <workItem from="1753360521608" duration="11150000" />
     </task>
     <servers />
   </component>

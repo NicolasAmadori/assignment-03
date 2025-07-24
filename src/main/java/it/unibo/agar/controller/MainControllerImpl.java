@@ -1,4 +1,6 @@
-package it.unibo.agar.model;
+package it.unibo.agar.controller;
+
+import it.unibo.agar.model.*;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;

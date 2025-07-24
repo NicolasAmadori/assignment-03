@@ -1,4 +1,8 @@
-package it.unibo.agar.model;
+package it.unibo.agar.controller;
+
+import it.unibo.agar.model.Food;
+import it.unibo.agar.model.Player;
+import it.unibo.agar.model.World;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
